@@ -53,11 +53,6 @@ Function {
             : (jcb[$2] / ec * 1.0 / ( epsSigma + ( Norm[$1]/ec )^((nb[$2]#7-1.0)/#7) ) * TensorDiag[1, 1, 1] );
     sigmae[] = sigma[$1,$2] * $1;
 
-    // Power law thin-shell (TS) model
-    rho_powerTS[] = (ec / (jc) ) *( Norm[($1-$2)/Delta] / (jc) )^(n - 1);
-    dedj_powerTS[] =
-					ec / jc * (  Norm[($1-$2)/Delta] / (jc) )^(n - 1) +
-					ec / jc^3 * (n - 1) * (  Norm[($1-$2)/Delta] / (jc) )^(n - 3) * Norm[(($1-$2)/Delta)]^2;
 
     // ------- Copper constitutive law -------
     sigma_copper[] = 58e6; // [S/m]

@@ -191,43 +191,29 @@ Include "resolution.pro";
 PostOperation {
     // Runtime output for graph plot
     { Name Info;
-        If(formulation == ta_formulation)
             NameOfPostProcessing MagDyn_ta ;
-        EndIf
         Operation{
             Print[ time[OmegaC], OnRegion OmegaC, LastTimeStepOnly, Format Table, SendToServer "Output/0Time [s]"] ;
-            If(formulation == ta_formulation)
                 Print[ I, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/1Applied current [A]"] ;
                 Print[ V, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/2Tension [Vm^-1]"] ;
-            EndIf
             //Print[ dissPower[OmegaC], OnGlobal, LastTimeStepOnly, Format Table, SendToServer "Output/3Joule loss [W]"] ;
         }
     }
     { Name MagDyn;LastTimeStepOnly realTimeSolution ;
-        If(formulation == ta_formulation)
             NameOfPostProcessing MagDyn_ta ;
-        EndIf
         Operation {
             If(economPos == 0)
-                If(formulation == ta_formulation)
                     Print[ a, OnElementsOf Omega , File "res/a.pos", Name "a [Tm]" ];
                     Print[ t, OnElementsOf OmegaC , File "res/t.pos", Name "t [Am]" ];
                     Print[ t, OnLine{{List[controlPoint1]}{List[controlPoint2]}} {savedPoints},
                         Format TimeTable, File "res/tLine.txt"];
-                EndIf
-                If(formulation != h_phi_ts_formulation)
                     Print[ j, OnElementsOf OmegaC , File "res/j.pos", Name "j [A/m2]" ];
                     Print[ e, OnElementsOf OmegaC , File "res/e.pos", Name "e [V/m]" ];
-                EndIf
 
                 Print[ h, OnElementsOf Omega , File "res/h.pos", Name "h [A/m]" ];
-                If(formulation == ta_formulation)
                     Print[ b, OnElementsOf OmegaCC , File "res/b.pos", Name "b [T]" ];
-                EndIf
             EndIf
-            If(formulation == ta_formulation)
                 Print[ j, OnElementsOf OmegaC, Format TimeTable, File outputCurrent];
-            EndIf
             Print[ b, OnLine{{List[controlPoint1]}{List[controlPoint2]}} {savedPoints},
                 Format TimeTable, File outputMagInduction1];
             Print[ b, OnLine{{List[controlPoint3]}{List[controlPoint4]}} {savedPoints},

@@ -241,21 +241,7 @@ Return
 Resolution {
     { Name MagDyn;
         System {
-            If(formulation == h_formulation)
-                {Name A; NameOfFormulation MagDyn_htot;}
-            ElseIf(formulation == h_formulation+1)
-                {Name A; NameOfFormulation MagDyn_htot_full;}
-            ElseIf(formulation == h_formulation+2)
-                {Name A; NameOfFormulation MagDyn_htot_links;}
-            ElseIf(formulation == a_formulation)
-                {Name A; NameOfFormulation MagDyn_avtot;}
-            ElseIf(formulation == coupled_formulation)
-                {Name A; NameOfFormulation MagDyn_coupled;}
-            ElseIf(formulation == ta_formulation)
                 {Name A; NameOfFormulation MagDyn_ta;}
-            ElseIf(formulation == h_phi_ts_formulation)
-                {Name A; NameOfFormulation MagDyn_hphits;}
-            EndIf
         }
         Operation {
             //SetGlobalSolverOptions["-petsc_prealloc_full 200"]; // prealloc for "global functions" (groupsOfEdges,...): total size by default
@@ -321,8 +307,7 @@ Resolution {
                     Call CustomIterativeLoopNoRelax;
                 }
                 //Break[];
-                // ----- End custom iterative loop ----- (it has not necessarily converged)
-                // If converged... (case $res0 == 0 if "exact" solution directly found )
+                // ----- End custom iterative loop ----- (it has not necessarily converged) If converged... (case $res0 == 0 if "exact" solution directly found )
                 Test[ $iter < iter_max && ($res / $res0 <= 1e10 || $res0 == 0)]{
                     // Save the solution of few time steps (small correction to avoid bad rounding)
                     Test[ saveAllSteps==1 || $Time >= $saved * writeInterval - 1e-6 || $Time + $DTime >= timeFinalSimu]{
@@ -383,21 +368,7 @@ Resolution {
 PostOperation {
     // Extracting energetic quantities
     { Name MagDyn_energy ;
-        If(formulation == h_formulation)
-            NameOfPostProcessing MagDyn_htot ; LastTimeStepOnly 1 ;
-        ElseIf(formulation == h_formulation+1)
-            NameOfPostProcessing MagDyn_htot_full ; LastTimeStepOnly 1 ;
-        ElseIf(formulation == h_formulation+2)
-            NameOfPostProcessing MagDyn_htot_links ; LastTimeStepOnly 1 ;
-        ElseIf(formulation == a_formulation)
-            NameOfPostProcessing MagDyn_avtot ; LastTimeStepOnly 1 ;
-        ElseIf(formulation == coupled_formulation)
-            NameOfPostProcessing MagDyn_coupled ; LastTimeStepOnly 1 ;
-        ElseIf(formulation == ta_formulation)
             NameOfPostProcessing MagDyn_ta ; LastTimeStepOnly 1 ;
-        ElseIf(formulation == h_phi_ts_formulation)
-            NameOfPostProcessing MagDyn_hphits ; LastTimeStepOnly 1 ;
-        EndIf
         Operation{
             Print[ power[Air], OnGlobal, Format Table, StoreInVariable $indicAir, File "res/dummy.txt"];
             Print[ power[MagnAnhyDomain], OnGlobal, Format Table, StoreInVariable $indicFerro, File > "res/dummy.txt" ];
@@ -422,21 +393,7 @@ PostOperation {
     }
     // Save the steps separately (if needed)
     { Name saveSeparately ;
-        If(formulation == h_formulation)
-            NameOfPostProcessing MagDyn_htot ;
-        ElseIf(formulation == h_formulation+1)
-            NameOfPostProcessing MagDyn_htot_full ;
-        ElseIf(formulation == h_formulation+2)
-            NameOfPostProcessing MagDyn_htot_links ;
-        ElseIf(formulation == a_formulation)
-            NameOfPostProcessing MagDyn_avtot ;
-        ElseIf(formulation == coupled_formulation)
-            NameOfPostProcessing MagDyn_coupled ;
-        ElseIf(formulation == ta_formulation)
             NameOfPostProcessing MagDyn_ta ;
-        ElseIf(formulation == h_phi_ts_formulation)
-            NameOfPostProcessing MagDyn_hphits ;
-        EndIf
         Operation{
             Print[ b, OnElementsOf Omega, File "res/tmp_b", Format Gmsh,
                 LastTimeStepOnly, AppendTimeStepToFileName] ;

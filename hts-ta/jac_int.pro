@@ -4,7 +4,6 @@
 // Groups associated with function spaces
 Group{
     // Domains for the different formulations
-    If(formulation == ta_formulation)
         Omega_h = Region[{OmegaC}];
         Omega_h_OmegaC = Region[{OmegaC}];
         Omega_h_AndBnd = Region[{Omega_h_OmegaC}];
@@ -15,7 +14,6 @@ Group{
         Omega_a_AndBnd  = Region[{Omega_a, OmegaC, GammaAll, PositiveEdges}];
         Omega_a_OmegaCC = Region[{OmegaCC}];
         BndOmega_ha = Region[{OmegaC}];
-    EndIf
     TransitionLayerAndBndOmegaC = ElementsOf[BndOmegaC_side, OnOneSideOf Cuts];
 }
 Function{
