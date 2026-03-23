@@ -285,23 +285,6 @@ FunctionSpace {
     }
     //  2: In 3D or 2D with perpendicular b
     //      v = sum V_i * v_i   (connected conducting regions)
-    { Name grad_v_space_3D; Type Form1;
-        BasisFunction {
-            { Name vi; NameOfCoef Vi; Function BF_GradGroupOfNodes;
-                Support ElementsOf[OmegaC, OnOneSideOf Electrodes];
-                Entity GroupsOfNodesOf[Electrodes]; }
-        }
-        GlobalQuantity {
-            { Name V; Type AliasOf; NameOfCoef Vi; }
-            { Name I; Type AssociatedWith; NameOfCoef Vi; }
-        }
-        Constraint {
-            { NameOfCoef V;
-                EntityType GroupsOfNodesOf; NameOfConstraint Voltage; }
-            { NameOfCoef I;
-                EntityType GroupsOfNodesOf; NameOfConstraint Current; }
-        }
-    }
     // Function space for the curent vector potential in t-a-formulation
     // The function here is the normal component of the vector t. The normal direction is
     // introduced explicitly in the formulation, where the "true t" is Dof{t} * Normal[]

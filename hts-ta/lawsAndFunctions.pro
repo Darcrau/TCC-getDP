@@ -63,10 +63,6 @@ Function {
     sigma_copper[] = 58e6; // [S/m]
     rho_copper[] = 1./sigma_copper[]; //1e-2*1.81e-10;//
 
-    // ------- Using built-in functions for the power-law model -------
-    rho_power_built_in[] = RhoPowerLaw[Norm[$1], jcb[$2], nb[$2]]{ec};
-    drhodj_timesj_power_built_in[] = DRhoDJTimesJPowerLaw[$1, jcb[$2], nb[$2]]{ec};
-    dedj_power_built_in[] = DEDJPowerLaw[$1, jcb[$2], nb[$2]]{ec};
 }
 
 // Predefined regions

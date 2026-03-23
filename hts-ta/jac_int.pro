@@ -4,55 +4,7 @@
 // Groups associated with function spaces
 Group{
     // Domains for the different formulations
-    If(formulation == h_formulation || formulation == h_formulation+1 || formulation == h_formulation+2 || formulation == h_phi_ts_formulation)
-        Omega_h = Region[{Omega}];
-        Omega_h_AndBnd = Region[{Omega,GammaAll}];
-        Omega_h_OmegaC = Region[{OmegaC}];
-        Omega_h_OmegaC_AndBnd = Region[{OmegaC, BndOmegaC}];
-        Omega_h_OmegaCC = Region[{OmegaCC}];
-        If(Flag_MB==1)
-            Omega_h_OmegaCC_AndBnd = Region[{OmegaCC, BndOmegaC, Rotor_Bnd_MBaux}];
-        Else
-            Omega_h_OmegaCC_AndBnd = Region[{OmegaCC, BndOmegaC, GammaS}];
-        EndIf
-        Omega_a  = Region[{}];
-        Omega_a_AndBnd = Region[{}];
-        Omega_a_OmegaCC = Region[{}];
-        BndOmega_ha = Region[{}];
-    ElseIf(formulation == a_formulation)
-        Omega_h = Region[{}];
-        Omega_h_AndBnd = Region[{}];
-        Omega_h_OmegaC = Region[{}];
-        Omega_h_OmegaC_AndBnd = Region[{}];
-        Omega_h_OmegaCC = Region[{}];
-        Omega_h_OmegaCC_AndBnd = Region[{}];
-        Omega_a  = Region[{Omega}];
-        If(Flag_MB==1)
-            Omega_a_AndBnd  = Region[{Omega, GammaAll, BndOmegaC, Rotor_Bnd_MBaux}];
-        Else
-            Omega_a_AndBnd  = Region[{Omega, GammaAll, BndOmegaC}];
-        EndIf
-        Omega_a_OmegaCC = Region[{OmegaCC}];
-        Omega_a_OmegaCC_AndBnd = Region[{OmegaCC, BndOmegaC}];
-        BndOmega_ha = Region[{}];
-    ElseIf(formulation == coupled_formulation)
-        If(automatic_ha_domains == 1)
-            Omega_h = Region[{OmegaC}];
-            Omega_h_AndBnd = Region[{OmegaC,BndOmegaC}];
-            Omega_h_OmegaC = Region[{OmegaC}];
-            Omega_h_OmegaC_AndBnd = Region[{OmegaC, BndOmegaC}];
-            Omega_h_OmegaCC = Region[{}];
-            Omega_h_OmegaCC_AndBnd = Region[{BndOmegaC}];
-            Omega_a  = Region[{OmegaCC}];
-            If(Flag_MB==1)
-                Omega_a_AndBnd  = Region[{OmegaCC, GammaAll, BndOmegaC, Rotor_Bnd_MBaux}];
-            Else
-                Omega_a_AndBnd  = Region[{OmegaCC, GammaAll, BndOmegaC}];
-            EndIf
-            Omega_a_OmegaCC = Region[{OmegaCC}];
-            BndOmega_ha = Region[{BndOmegaC}];
-        EndIf
-    ElseIf(formulation == ta_formulation)
+    If(formulation == ta_formulation)
         Omega_h = Region[{OmegaC}];
         Omega_h_OmegaC = Region[{OmegaC}];
         Omega_h_AndBnd = Region[{Omega_h_OmegaC}];

@@ -19,7 +19,7 @@ Group {
     // Source:
     //      0 -> applied current
     //      1 -> applied field
-    SourceType = 1;
+    SourceType = 0;
 
     // ------- WEAK FORMULATION -------
     // Choice of the formulation
@@ -63,11 +63,7 @@ Group {
     // Fill the regions for formulation
     MagnAnhyDomain = Region[ {Ferro} ];
     MagnLinDomain = Region[ {Air, Super, Copper} ];
-    If (formulation != h_phi_ts_formulation)
         NonLinOmegaC = Region[ {Super} ];
-    Else
-        NonLinOmegaC = Region[ {GammaS} ];
-    EndIf
     LinOmegaC = Region[ {Copper} ];
     OmegaC = Region[ {LinOmegaC, NonLinOmegaC} ];
     OmegaCC = Region[ {Air, Ferro} ];
@@ -105,16 +101,13 @@ Function{
     DefineConstant [timeFinalSimu = 1.25/f]; // Final time of simulation [s]
 
     // Numerical parameters
-    DefineConstant [nbStepsPerPeriod = {(preset!=2) ? 240/meshMult : 8, Highlight "LightBlue",
-        ReadOnly !expMode, Name "Input/5Method/Number of time step per period (-)"}]; // Number of time steps over one period [-]
+    DefineConstant [nbStepsPerPeriod = {240/meshMult, Name "Input/5Method/Number of time step per period (-)"}]; // Number of time steps over one period [-]
     DefineConstant [dt = 1/(nbStepsPerPeriod*f)]; // Time step (initial if adaptive)[s]
     DefineConstant [writeInterval = dt]; // Time interval between two successive output file saves [s]
     DefineConstant [dt_max = dt]; // Maximum allowed time step [s]
-    DefineConstant [iter_max = {(preset==1 || preset==4 || preset==5) ? 400 : 600, Highlight "LightBlue",
-        ReadOnly !expMode, Name "Input/5Method/Max number of iteration (-)"}]; // Maximum number of nonlinear iterations
+    DefineConstant [iter_max = {400, Name "Input/5Method/Max number of iteration (-)"}]; // Maximum number of nonlinear iterations
     DefineConstant [extrapolationOrder = 2]; // Extrapolation order
-    DefineConstant [tol_energy = {(preset==1 || preset==4 || preset==5) ? 1e-6 : 1e-4, Highlight "LightBlue",
-        ReadOnly !expMode, Name "Input/5Method/Relative tolerance (-)"}]; // Relative tolerance on the energy estimates
+    DefineConstant [tol_energy = {1e-6, Name "Input/5Method/Relative tolerance (-)"}]; // Relative tolerance on the energy estimates
     // Control points
     controlPoint1 = {-W_tape/2+1e-5,0, 0}; // CP1
     controlPoint2 = {W_tape/2-1e-5, 0, 0}; // CP2
@@ -176,25 +169,15 @@ Constraint {
     }
     { Name Current ; Type Assign;
         Case {
-            If(formulation == ta_formulation)
-                // t-a-formulation
                 If(SourceType == 0)
                     { Region Edge1; Value 1.0; TimeFunction I[]; } // t_tilde = w t
                 ElseIf(SourceType == 1)
                     { Region Edge1; Value 0.0; }
                 EndIf
-            EndIf
         }
     }
     { Name Voltage ; Case { } } // Nothing
 
-    { Name Connect; // required link Dofs in the h-phi_ts_formulation
-		Case {
-				{ Region GammaS_1; Type Link ; RegionRef GammaS_0;
-					Coefficient 1; Function Vector[$X,$Y,$Z] ;
-				}
-			}
-	}
 
 }
 
