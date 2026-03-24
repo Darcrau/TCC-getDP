@@ -2,6 +2,8 @@ Include "tape_data.pro";
 
 R = W_tape/2; // Radius
 
+
+
 DefineConstant [LcTape = 2*R/numElementsTape]; // Mesh size in cylinder [m]
 DefineConstant [LcLayer = LcTape*2]; // Mesh size in the region close to the cylinder [m]
 DefineConstant [LcAir = meshMult*0.001*3]; // Mesh size in air shell [m]
@@ -18,19 +20,46 @@ Circle(4) = {4, 100, 6};
 Circle(6) = {6, 100, 8};
 Circle(8) = {8, 100, 2};
 
-Point(10) = {-R, 0, 0, LcTape};
-Point(11) = {R, 0, 0, LcTape};
-Line(10) = {10,11};
-Transfinite Line(10) = numElementsTape Using Progression 1;
+
+tapeSpacing = H_tape*3; // Espaço entre tapes (ajuste conforme necessário)
+numTapes = 1; // Número total de tapes (inclui a original)
+
+// Array para armazenar os IDs das linhas das tapes
+linhasTapes[] = {};
+offset = 200; // Offset para os IDs das linhas das tapes (para evitar conflitos com outras linhas)
+
+// Arrays para armazenar os pontos das extremidades das tapes
+pontosEsquerda[] = {};
+pontosDireita[] = {};
+
+
+
+For i In {0:numTapes-1}
+  yOffset = i * tapeSpacing;
+  p1 = offset + i*2;
+  p2 = offset+1 + i*2;
+  l = 10 + i;
+  Point(p1) = {-R, yOffset, 0, LcTape};
+  Point(p2) = { R, yOffset, 0, LcTape};
+  Line(l) = {p1, p2};
+  Transfinite Line(l) = numElementsTape Using Progression 1;
+  linhasTapes[] += {l}; // Adiciona o ID da linha ao array
+  pontosEsquerda[] += {p1};
+  pontosDireita[] += {p2};
+EndFor
+
+
+
+
 Line Loop(30) = {2, 4, 6, 8}; // Outer boundary
 Plane Surface(2) = {30};
-Curve{10} In Surface{2};
+Curve{linhasTapes[]} In Surface{2};
 Physical Surface("Air", AIR) = {2};
 Physical Line("Exterior boundary", SURF_OUT) = {2, 4, 6, 8};
-Physical Line("Conducting domain", MATERIAL) = {10};
+Physical Line("Conducting domain", MATERIAL) = {linhasTapes[]};
 Physical Line("Conducting domain boundary", BND_MATERIAL) = {10};
-Physical Point("Left edge", EDGE_1) = {10};
-Physical Point("Right edge", EDGE_2) = {11};
+Physical Point("Left edge", EDGE_1) = {pontosEsquerda[]};
+Physical Point("Right edge", EDGE_2) = {pontosDireita[]};
 Physical Point("Arbitrary Point", ARBITRARY_POINT) = {2};
 // Empty regions
 Physical Surface("Spherical shell", AIR_OUT) = {};
