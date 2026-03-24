@@ -248,6 +248,7 @@ Resolution {
             // Create directory to store result files
             CreateDirectory[resDirectory];
             CreateDirectory[outputDirectory]; // For .txt ouput files
+            CreateDirectory["res/"]; // For .pos and local .txt output files
             DeleteFile[outputPower]; // Start from a new file
             DeleteFile[infoIterationFile]; // Start from a new file
             DeleteFile[infoResidualFile]; // Start from a new file
