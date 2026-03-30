@@ -371,24 +371,24 @@ PostOperation {
     { Name MagDyn_energy ;
             NameOfPostProcessing MagDyn_ta ; LastTimeStepOnly 1 ;
         Operation{
-            Print[ power[Air], OnGlobal, Format Table, StoreInVariable $indicAir, File "res/dummy.txt"];
-            Print[ power[MagnAnhyDomain], OnGlobal, Format Table, StoreInVariable $indicFerro, File > "res/dummy.txt" ];
-            Print[ power[NonLinOmegaC], OnGlobal, Format Table, StoreInVariable $indicSuper, File > "res/dummy.txt" ];
-            Print[ dissPower[NonLinOmegaC], OnGlobal, Format Table, StoreInVariable $indicDissSuper, File > "res/dummy.txt" ];
-            Print[ dissPower[LinOmegaC], OnGlobal, Format Table, StoreInVariable $indicDissLin, File > "res/dummy.txt" ];
+            Print[ power[Air], OnGlobal, Format Table, StoreInVariable $indicAir ];
+            Print[ power[MagnAnhyDomain], OnGlobal, Format Table, StoreInVariable $indicFerro ];
+            Print[ power[NonLinOmegaC], OnGlobal, Format Table, StoreInVariable $indicSuper ];
+            Print[ dissPower[NonLinOmegaC], OnGlobal, Format Table, StoreInVariable $indicDissSuper ];
+            Print[ dissPower[LinOmegaC], OnGlobal, Format Table, StoreInVariable $indicDissLin ];
 
             If(formulation == h_formulation || (formulation == h_formulation+1 && k_max==0) || formulation == coupled_formulation || formulation == h_phi_ts_formulation)
-                Print[ dissPowerGlobal, OnRegion Cuts, Format Table, StoreInVariable $indicDissGlobal, File > "res/dummy.txt" ];
-                Print[ V, OnRegion Cuts, Format Table, StoreInVariable $Voltage, File > "res/dummy.txt" ];
-                Print[ I, OnRegion Cuts, Format Table, StoreInVariable $Current, File > "res/dummy.txt" ];
+                Print[ dissPowerGlobal, OnRegion Cuts, Format Table, StoreInVariable $indicDissGlobal ];
+                Print[ V, OnRegion Cuts, Format Table, StoreInVariable $Voltage ];
+                Print[ I, OnRegion Cuts, Format Table, StoreInVariable $Current ];
             ElseIf(formulation == a_formulation)
-                Print[ dissPowerGlobal, OnRegion OmegaC, Format Table, StoreInVariable $indicDissGlobal, File > "res/dummy.txt" ];
-                Print[ U, OnRegion OmegaC, Format Table, StoreInVariable $Voltage, File > "res/dummy.txt" ];
-                Print[ I, OnRegion OmegaC, Format Table, StoreInVariable $Current, File > "res/dummy.txt" ];
+                Print[ dissPowerGlobal, OnRegion OmegaC, Format Table, StoreInVariable $indicDissGlobal ];
+                Print[ U, OnRegion OmegaC, Format Table, StoreInVariable $Voltage ];
+                Print[ I, OnRegion OmegaC, Format Table, StoreInVariable $Current ];
             ElseIf(formulation == ta_formulation)
-                Print[ dissPowerGlobal, OnRegion PositiveEdges, Format Table, StoreInVariable $indicDissGlobal, File > "res/dummy.txt" ];
-                Print[ V, OnRegion PositiveEdges, Format Table, StoreInVariable $Voltage, File > "res/dummy.txt" ];
-                Print[ I, OnRegion PositiveEdges, Format Table, StoreInVariable $Current, File > "res/dummy.txt" ];
+                Print[ dissPowerGlobal, OnRegion PositiveEdges, Format Table, StoreInVariable $indicDissGlobal ];
+                Print[ V, OnRegion PositiveEdges, Format Table, StoreInVariable $Voltage ];
+                Print[ I, OnRegion PositiveEdges, Format Table, StoreInVariable $Current ];
             EndIf
         }
     }
