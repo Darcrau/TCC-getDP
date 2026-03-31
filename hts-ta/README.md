@@ -180,7 +180,13 @@ b0 = 0.1 T            — campo de referência para dependência de Jc(B)
 Flag_jcb = 1          → Jc(B) = jc / (1 + |B|/b0)  (Jc dependente do campo)
 ```
 
-**Excitação (SourceType = 0: corrente aplicada):**
+**Excitação (`SourceType`):**
+
+- `SourceType = 0` → somente corrente imposta (`I(t)`)
+- `SourceType = 1` → somente campo aplicado (`hsVal`)
+- `SourceType = 2` → corrente **e** campo ao mesmo tempo (superposição)
+
+Parâmetros da corrente:
 ```
 IFraction = 0.9
 Imax = 0.9 × jc × W_tape × H_tape    — amplitude da corrente
@@ -231,15 +237,11 @@ A função `dedj` (jacobiano ∂E/∂J) é usada no método de Newton-Raphson pa
 
 ### 4.4 Restrições (condições de contorno) — `Constraint` em `htstape.pro`
 
-**Para `SourceType = 0` (corrente aplicada):**
+- `a`: Dirichlet homogêneo em `SurfOut`/`SurfSym` (gauge). O campo aplicado é adicionado via termo de contorno na formulação (`Gamma_h`) e não por Dirichlet, permitindo somar com corrente imposta.
+- `phi`: fixado em `ArbitraryPoint` para unicidade (gauge).
+- `Current` (global): em `Edge1`, recebe `I(t)` quando `SourceType` inclui corrente (`0` ou `2`); caso contrário fica 0.
 
-| Nome | Onde | Valor | Significado |
-|------|------|-------|-------------|
-| `a`  | `SurfOut` | 0 | Potencial vetor nulo na fronteira exterior (campo aplicado nulo) |
-| `phi`| `ArbitraryPoint` | 0 | Fixa o potencial escalar em um ponto para unicidade |
-| `Current` | `Edge1` | `I(t)` | Impõe a corrente total que flui pela fita |
-
-O `Current` é a condição de contorno **global**: define o valor de `T` (potencial de corrente) na borda esquerda, impondo que a corrente total integrada ao longo da espessura seja `I(t)`.
+Assim, `SourceType = 2` aplica simultaneamente corrente e campo sem sobreconstranger os mesmos graus de liberdade.
 
 ### 4.5 Espaços de funções e formulação — `formulations.pro`
 
