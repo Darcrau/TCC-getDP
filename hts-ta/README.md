@@ -23,7 +23,7 @@ Use este resumo para montar o mesmo caso em um modelo 2D no COMSOL:
      | Arbitrary Point | Ponto (0, –R_inf, 0) | 11000 | Ponto onde φ é fixado para unicidade |
 
 2. **Material da fita (lei de potência)**
-   - **Jc = 2,5×10¹⁰ A/m² (≈ 2.5×10¹⁰ A/m²)**, **n = 25**, **ec = 1×10⁻⁴ V/m**.
+   - **Jc = 2,5×10¹⁰ A/m²**, **n = 25**, **ec = 1×10⁻⁴ V/m**.
    - Dependência com campo: **Jc(B) = Jc / (1 + |B|/b0)**, com **b0 = 0,1 T**.
    - Use a espessura **w = H_tape = 1 µm** para converter corrente de folha em densidade (J = ∂t/∂x / w).
 
@@ -38,7 +38,7 @@ Use este resumo para montar o mesmo caso em um modelo 2D no COMSOL:
 
 4. **Excitação por campo aplicado (`SourceType = 1`) ou corrente + campo (`SourceType = 2`)**
    - Campo magnético uniforme senoidal no ar, amplitude **bmax = 0,02 T**, frequência **50 Hz**.  
-     Implementação via potencial vetor: **A_z = -x · bmax · sin(2π·f·t)** na fronteira externa. O resultado é um **B** aproximadamente uniforme dirigido em **+y**.
+     Implementação via potencial vetor: **A_z = -x · bmax · sin(2π·f·t)** na fronteira externa; como **B = ∇×A** e **B_y = -∂A_z/∂x**, resulta **B_y ≈ bmax · sin(2π·f·t)**, uniforme e dirigido em **+y**.
    - Potencial escalar na fronteira externa: **φ = y · sin(2π·f·t)** (`directionApplied = (0,1,0)`).
    - Corrente: **0 A** se apenas campo (`SourceType = 1`), ou **I(t)** acima se corrente + campo (`SourceType = 2`).
 
