@@ -17,8 +17,9 @@ Group {
 
     Flag_cohomology = 1;
     // Source:
-    //      0 -> applied current
-    //      1 -> applied field
+    //      0 -> applied current only
+    //      1 -> applied field only
+    //      2 -> applied current + applied field (most realistic)
     SourceType = 0;
 
     // ------- WEAK FORMULATION -------
@@ -143,6 +144,8 @@ Constraint {
                 {Region SurfSym ; Value 0.0;}
             ElseIf(SourceType == 1)
                 {Region SurfOut ; Value -X[] * mu0 ; TimeFunction hsVal[] ;}
+            ElseIf(SourceType == 2)
+                {Region SurfOut ; Value -X[] * mu0 ; TimeFunction hsVal[] ;}
             EndIf
         }
     }
@@ -164,6 +167,8 @@ Constraint {
                 {Region ArbitraryPoint ; Value 0.0;} // If no surf sym (we could have put one here), fix it at one point
             ElseIf(SourceType == 1)
                 {Region SurfOut ; Value XYZ[]*directionApplied[] ; TimeFunction hsVal[] ;}
+            ElseIf(SourceType == 2)
+                {Region SurfOut ; Value XYZ[]*directionApplied[] ; TimeFunction hsVal[] ;}
             EndIf
         }
     }
@@ -173,6 +178,8 @@ Constraint {
                     { Region Edge1; Value 1.0; TimeFunction I[]; } // t_tilde = w t
                 ElseIf(SourceType == 1)
                     { Region Edge1; Value 0.0; }
+                ElseIf(SourceType == 2)
+                    { Region Edge1; Value 1.0; TimeFunction I[]; } // Current + field
                 EndIf
         }
     }
