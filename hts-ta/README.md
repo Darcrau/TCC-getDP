@@ -2,6 +2,51 @@
 
 Este diretório contém a simulação eletromagnética de uma **fita supercondutora de alta temperatura (HTS)** usando a **formulação T-A** no software GetDP. A seguir, a explicação passo a passo de tudo o que acontece, na ordem em que o GetDP processa os arquivos.
 
+## Guia rápido para reproduzir no COMSOL (geometria, corrente e campo)
+
+Use este resumo para montar o mesmo caso em um modelo 2D no COMSOL:
+
+1. **Geometria 2D (plano XY)**
+   - Domínio de ar: círculo de raio **R_inf = 0,06 m**, centrado na origem.
+   - Fita HTS: representada como **uma linha (casca fina)** sobre o eixo X, de **x = -W/2 a x = +W/2**, em y = 0, onde **W_tape = 12 mm** (portanto, de -6 mm a +6 mm). A espessura física usada na formulação é **H_tape = 1 µm**.
+   - Pontos de borda da fita: **Edge1** em x = -W/2 (entrada da corrente) e **Edge2** em x = +W/2 (retorno).
+   - Regiões físicas (para mapear fronteiras no COMSOL):
+
+     | Nome | Entidade | ID | Função |
+     |------|----------|----|--------|
+     | Air | Superfície do círculo | 1000 | Domínio de ar |
+     | Exterior boundary | Circunferência | 14000000 | Fronteira externa onde se aplica A ou se fixa A = 0 |
+     | Conducting domain | Linha da fita | 23000 | Região da fita (casca fina) |
+     | Conducting domain boundary | Linha da fita | 25000 | Mesma linha, usada como fronteira condutora |
+     | Left edge | Ponto esquerdo | 11001 | Onde a corrente é imposta |
+     | Right edge | Ponto direito | 11002 | Retorno da corrente |
+     | Arbitrary Point | Ponto (0, –R_inf, 0) | 11000 | Ponto onde φ é fixado para unicidade |
+
+2. **Material da fita (lei de potência)**
+   - **Jc = 2,5×10¹⁰ A/m²**, **n = 25**, **ec = 1×10⁻⁴ V/m**.
+   - Dependência com campo: **Jc(B) = Jc / (1 + |B|/b0)**, com **b0 = 0,1 T**.
+   - Use a espessura **w = H_tape = 1 µm** para converter corrente de folha em densidade (J = ∂t/∂x / w).
+
+3. **Excitação por corrente (caso padrão, `SourceType = 0`)**
+   - Corrente aplicada somente em **Edge1**:  
+     **I(t) = Imax · sin(2π·f·t)**, com **f = 50 Hz** e  
+     **Imax = 0,9 · Jc · W_tape · H_tape ≈ 270 A**.
+   - Condições de contorno associadas:  
+     - **a = 0** na fronteira externa (`Exterior boundary`) → campo aplicado nulo.  
+     - **φ = 0** no `Arbitrary Point` para fixar o potencial escalar.  
+     - Corrente global **I(t)** imposta em `Left edge`; `Right edge` é o retorno (t livre).
+
+4. **Excitação por campo aplicado (`SourceType = 1`) ou corrente + campo (`SourceType = 2`)**
+   - Campo magnético uniforme senoidal no ar, amplitude **bmax = 0,02 T**, frequência **50 Hz**.  
+     Implementação via potencial vetor: **A_z = -x · bmax · sin(2π·f·t)** na fronteira externa. O resultado é um **B** aproximadamente uniforme dirigido em **+ŷ**.
+   - Potencial escalar na fronteira externa: **φ = y · sin(2π·f·t)** (`directionApplied = (0,1,0)`).
+   - Corrente: **0 A** se apenas campo (`SourceType = 1`), ou **I(t)** acima se corrente + campo (`SourceType = 2`).
+
+5. **Tradução prática para o COMSOL**
+   - Use um estudo 2D magnético quasiestático; represente a fita como **borda (edge) com espessura w** aplicando condição de corrente integrada ou campo de superfície equivalente.
+   - Fixe **A = 0** (ou A prescrito conforme o caso de campo) na circunferência externa. Fixe **φ** em um ponto para remover o grau de liberdade nulo.
+   - Para pós-processo, acompanhe **B**, **J**, **E** na linha da fita e a tensão entre Edge1 e Edge2; o período de simulação padrão é **25 ms (1,25 períodos a 50 Hz)** com passo inicial **dt ≈ 333 µs**.
+
 ---
 
 ## 1. Definição de parâmetros geométricos e de malha — `tape_data.pro`
