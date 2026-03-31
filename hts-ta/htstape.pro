@@ -141,10 +141,13 @@ Function{
 Constraint {
     { Name a ;
         Case {
-                // Homogeneous gauge on outer/symmetry boundaries. Applied field is handled as
-                // a source term in the formulation (not by Dirichlet) to allow superposition.
-                {Region SurfOut ; Value 0.0;}
+                // Keep SurfOut free when applying field so the Neumann excitation can act; otherwise clamp outer boundary.
                 {Region SurfSym ; Value 0.0;}
+                If(SourceHasField)
+                    {Region ArbitraryPoint ; Value 0.0;}
+                Else
+                    {Region SurfOut ; Value 0.0;}
+                EndIf
         }
     }
     { Name a2 ;

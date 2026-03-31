@@ -237,7 +237,7 @@ A função `dedj` (jacobiano ∂E/∂J) é usada no método de Newton-Raphson pa
 
 ### 4.4 Restrições (condições de contorno) — `Constraint` em `htstape.pro`
 
-- `a`: Dirichlet homogêneo em `SurfOut`/`SurfSym` (gauge). O campo aplicado é adicionado via termo de contorno na formulação (`Gamma_h`) e não por Dirichlet, permitindo somar com corrente imposta.
+- `a`: Dirichlet homogêneo em `SurfSym` (gauge) e também em `SurfOut` quando não há campo aplicado. Se `SourceType` incluir campo (`1` ou `2`), `SurfOut` fica livre para receber o termo de contorno na formulação (`Gamma_h`), permitindo somar campo e corrente sem sobreconstranger os mesmos graus de liberdade.
 - `phi`: fixado em `ArbitraryPoint` para unicidade (gauge).
 - `Current` (global): em `Edge1`, recebe `I(t)` quando `SourceType` inclui corrente (`0` ou `2`); caso contrário fica 0.
 
