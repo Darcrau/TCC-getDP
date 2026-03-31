@@ -155,7 +155,8 @@ Formulation {
             // Surface term
             Galerkin { [ - Dof{d t} /\ Normal[] , {a}]; // Dof{d t} /\ Normal[] is the current density!
                 In BndOmega_ha; Integration Int; Jacobian Sur; }
-            If(Dim == 3)
+            If(SourceHasField)
+                // Applied field as Neumann-like excitation on Gamma_h (works in 2D and 3D)
                 Galerkin { [ - hsVal[] * (directionApplied[] /\ Normal[]), {a} ];
                     In Gamma_h ; Integration Int ; Jacobian Sur; }
             EndIf

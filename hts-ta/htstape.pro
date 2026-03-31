@@ -19,7 +19,10 @@ Group {
     // Source:
     //      0 -> applied current
     //      1 -> applied field
-    SourceType = 0;
+    //      2 -> both current and applied field
+    DefineConstant[SourceType = {0, Choices{0,1,2}, Name "Input/4Source/Source type (0=current, 1=field, 2=both)"}];
+    SourceHasCurrent = (SourceType == 0) || (SourceType == 2);
+    SourceHasField   = (SourceType == 1) || (SourceType == 2);
 
     // ------- WEAK FORMULATION -------
     // Choice of the formulation
@@ -138,12 +141,10 @@ Function{
 Constraint {
     { Name a ;
         Case {
-            If(SourceType == 0)
+                // Homogeneous gauge on outer/symmetry boundaries. Applied field is handled as
+                // a source term in the formulation (not by Dirichlet) to allow superposition.
                 {Region SurfOut ; Value 0.0;}
                 {Region SurfSym ; Value 0.0;}
-            ElseIf(SourceType == 1)
-                {Region SurfOut ; Value -X[] * mu0 ; TimeFunction hsVal[] ;}
-            EndIf
         }
     }
     { Name a2 ;
@@ -160,18 +161,15 @@ Constraint {
     }
     { Name phi ;
         Case {
-            If(SourceType == 0)
-                {Region ArbitraryPoint ; Value 0.0;} // If no surf sym (we could have put one here), fix it at one point
-            ElseIf(SourceType == 1)
-                {Region SurfOut ; Value XYZ[]*directionApplied[] ; TimeFunction hsVal[] ;}
-            EndIf
+                // Fix one point for uniqueness (gauge). Avoid conflicting Dirichlet with applied field.
+                {Region ArbitraryPoint ; Value 0.0;}
         }
     }
     { Name Current ; Type Assign;
         Case {
-                If(SourceType == 0)
+                If(SourceHasCurrent)
                     { Region Edge1; Value 1.0; TimeFunction I[]; } // t_tilde = w t
-                ElseIf(SourceType == 1)
+                Else
                     { Region Edge1; Value 0.0; }
                 EndIf
         }
