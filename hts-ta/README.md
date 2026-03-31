@@ -2,7 +2,7 @@
 
 Este diretório contém a simulação eletromagnética de uma **fita supercondutora de alta temperatura (HTS)** usando a **formulação T-A** no software GetDP. A seguir, a explicação passo a passo de tudo o que acontece, na ordem em que o GetDP processa os arquivos.
 
-## Guia rápido para reproduzir no COMSOL (geometria, corrente e campo)
+## Guia Rápido para Reproduzir no COMSOL (Geometria, Corrente e Campo)
 
 Use este resumo para montar o mesmo caso em um modelo 2D no COMSOL:
 
@@ -23,9 +23,9 @@ Use este resumo para montar o mesmo caso em um modelo 2D no COMSOL:
      | Arbitrary Point | Ponto (0, –R_inf, 0) | 11000 | Ponto onde φ é fixado para unicidade |
 
 2. **Material da fita (lei de potência)**
-   - **Jc = 2,5×10¹⁰ A/m²**, **n = 25**, **ec = 1×10⁻⁴ V/m**.
+   - **Jc = 2,5×10^10 A/m²**, **n = 25**, **ec = 1×10⁻⁴ V/m**.
    - Dependência com campo: **Jc(B) = Jc / (1 + |B|/b0)**, com **b0 = 0,1 T**.
-   - Use a espessura **w = H_tape = 1 µm** para converter corrente de folha em densidade (J = ∂t/∂x / w).
+   - Use a espessura **w = H_tape = 1 µm** (w é o alias usado na formulação) para converter corrente de folha em densidade (J = ∂t/∂x / w).
 
 3. **Excitação por corrente (caso padrão, `SourceType = 0`)**
    - Corrente aplicada somente em **Edge1**:  
@@ -43,7 +43,7 @@ Use este resumo para montar o mesmo caso em um modelo 2D no COMSOL:
    - Corrente: **0 A** se apenas campo (`SourceType = 1`), ou **I(t)** acima se corrente + campo (`SourceType = 2`).
 
 5. **Tradução prática para o COMSOL**
-   - Use um estudo 2D magnético quasiestático; represente a fita como **borda (edge) com espessura w** aplicando condição de corrente integrada ou campo de superfície equivalente.
+   - Use um estudo 2D magnético quasiestático; represente a fita como **borda (edge) com espessura w (= H_tape)** aplicando condição de corrente integrada ou campo de superfície equivalente.
    - Fixe **A = 0** (ou A prescrito conforme o caso de campo) na circunferência externa. Fixe **φ** em um ponto para remover o grau de liberdade nulo.
    - Para pós-processo, acompanhe **B**, **J**, **E** na linha da fita e a tensão entre Edge1 e Edge2; o período de simulação padrão é **25 ms (1,25 períodos a 50 Hz)** com passo inicial **dt ≈ 333 µs**.
 
