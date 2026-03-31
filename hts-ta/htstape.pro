@@ -142,12 +142,11 @@ Constraint {
     { Name a ;
         Case {
                 // Keep SurfOut free when applying field so the Neumann excitation can act; otherwise clamp outer boundary.
+                {Region SurfSym ; Value 0.0;}
                 If(SourceHasField)
-                    {Region SurfSym ; Value 0.0;}
                     {Region ArbitraryPoint ; Value 0.0;}
                 Else
                     {Region SurfOut ; Value 0.0;}
-                    {Region SurfSym ; Value 0.0;}
                 EndIf
         }
     }
