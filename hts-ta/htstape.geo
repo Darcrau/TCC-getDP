@@ -57,7 +57,7 @@ Curve{linhasTapes[]} In Surface{2};
 Physical Surface("Air", AIR) = {2};
 Physical Line("Exterior boundary", SURF_OUT) = {2, 4, 6, 8};
 Physical Line("Conducting domain", MATERIAL) = {linhasTapes[]};
-Physical Line("Conducting domain boundary", BND_MATERIAL) = {10};
+Physical Line("Conducting domain boundary", BND_MATERIAL) = {linhasTapes[]};
 Physical Point("Left edge", EDGE_1) = {pontosEsquerda[]};
 Physical Point("Right edge", EDGE_2) = {pontosDireita[]};
 Physical Point("Arbitrary Point", ARBITRARY_POINT) = {2};
@@ -74,5 +74,4 @@ Color Blue {Surface{2};}
 Hide { Point{ Point '*' }; }
 
 Cohomology(1) {{AIR}, {}};
-
 

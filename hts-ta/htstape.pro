@@ -5,7 +5,7 @@ Include "commonInformation.pro";
 Group {
     // Output choice
     DefineConstant[onelabInterface = {0, Choices{0,1}, Name "Input/3Problem/2Show solution during simulation?"}]; // Set to 0 for launching in terminal (faster)
-    realTimeInfo = 1;
+    realTimeInfo = onelabInterface;
     realTimeSolution = onelabInterface;
     // ------- PROBLEM DEFINITION -------
     // Test name - for output files
