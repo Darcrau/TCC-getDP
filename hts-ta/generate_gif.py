@@ -22,6 +22,8 @@ def parse_args() -> argparse.Namespace:
         parsed = int(value)
         if parsed <= 0:
             raise argparse.ArgumentTypeError("fps deve ser maior que zero")
+        if parsed > 1000:
+            raise argparse.ArgumentTypeError("fps deve ser menor ou igual a 1000")
         return parsed
 
     parser = argparse.ArgumentParser(description="Gera GIF temporal da simulação")
@@ -34,7 +36,7 @@ def parse_args() -> argparse.Namespace:
 def require_command(cmd: str) -> None:
     if shutil.which(cmd) is None:
         raise RuntimeError(
-            f"Comando '{cmd}' não encontrado. Instale o {cmd} para exportar os frames."
+            f"Comando '{cmd}' não encontrado. Instale a ferramenta {cmd} para exportar os frames."
         )
 
 
