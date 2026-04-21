@@ -18,10 +18,16 @@ import tempfile
 
 
 def parse_args() -> argparse.Namespace:
+    def positive_int(value: str) -> int:
+        parsed = int(value)
+        if parsed <= 0:
+            raise argparse.ArgumentTypeError("fps deve ser maior que zero")
+        return parsed
+
     parser = argparse.ArgumentParser(description="Gera GIF temporal da simulação")
     parser.add_argument("--pos", default="res/b.pos", help="Arquivo .pos de entrada")
     parser.add_argument("--out", default="res/b.gif", help="GIF de saída")
-    parser.add_argument("--fps", type=int, default=20, help="Frames por segundo")
+    parser.add_argument("--fps", type=positive_int, default=20, help="Frames por segundo")
     return parser.parse_args()
 
 
@@ -78,7 +84,7 @@ def build_gif_with_pillow(frame_dir: str, out_file: str, fps: int) -> None:
         raise RuntimeError("Nenhum frame PNG encontrado para montar o GIF.")
 
     images = [Image.open(path) for path in frame_paths]
-    duration_ms = max(1, int(1000 / max(1, fps)))
+    duration_ms = max(1, int(1000 / fps))
     os.makedirs(os.path.dirname(os.path.abspath(out_file)), exist_ok=True)
     images[0].save(
         out_file,
