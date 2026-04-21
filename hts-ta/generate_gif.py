@@ -83,8 +83,12 @@ def build_gif_with_pillow(frame_dir: str, out_file: str, fps: int) -> None:
     if not frame_paths:
         raise RuntimeError("Nenhum frame PNG encontrado para montar o GIF.")
 
-    images = [Image.open(path) for path in frame_paths]
-    duration_ms = max(1, int(1000 / fps))
+    images = []
+    for path in frame_paths:
+        with Image.open(path) as img:
+            images.append(img.copy())
+
+    duration_ms = max(1, round(1000 / fps))
     os.makedirs(os.path.dirname(os.path.abspath(out_file)), exist_ok=True)
     images[0].save(
         out_file,
@@ -93,8 +97,6 @@ def build_gif_with_pillow(frame_dir: str, out_file: str, fps: int) -> None:
         duration=duration_ms,
         loop=0,
     )
-    for img in images:
-        img.close()
 
 
 def main() -> int:
