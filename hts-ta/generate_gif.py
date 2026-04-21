@@ -68,7 +68,7 @@ def export_frames_with_gmsh(pos_file: str, frame_dir: str) -> None:
 def build_gif_with_pillow(frame_dir: str, out_file: str, fps: int) -> None:
     try:
         from PIL import Image
-    except Exception as exc:
+    except ImportError as exc:
         raise RuntimeError(
             "Biblioteca Pillow não encontrada. Instale com: python3 -m pip install pillow"
         ) from exc
@@ -102,7 +102,7 @@ def main() -> int:
 
 if __name__ == "__main__":
     try:
-        raise SystemExit(main())
+        sys.exit(main())
     except Exception as exc:
         print(f"Erro: {exc}", file=sys.stderr)
-        raise SystemExit(1)
+        sys.exit(1)
