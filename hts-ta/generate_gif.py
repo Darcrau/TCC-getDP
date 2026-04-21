@@ -40,6 +40,10 @@ def require_command(cmd: str) -> None:
         )
 
 
+def gmsh_escape(path: str) -> str:
+    return path.replace("\\", "\\\\").replace('"', '\\"')
+
+
 def export_frames_with_gmsh(pos_file: str, frame_dir: str) -> None:
     require_command("gmsh")
 
@@ -49,7 +53,7 @@ def export_frames_with_gmsh(pos_file: str, frame_dir: str) -> None:
 
     geo_script = os.path.join(frame_dir, "export_frames.geo")
     with open(geo_script, "w", encoding="utf-8") as f:
-        f.write(f'Merge "{abs_pos}";\n')
+        f.write(f'Merge "{gmsh_escape(abs_pos)}";\n')
         f.write("General.Terminal = 1;\n")
         f.write("General.Trackball = 0;\n")
         f.write("n = View[0].NbTimeStep;\n")
@@ -59,9 +63,8 @@ def export_frames_with_gmsh(pos_file: str, frame_dir: str) -> None:
         f.write("For step In {0:n-1}\n")
         f.write("  View[0].TimeStep = step;\n")
         f.write("  Draw;\n")
-        f.write(
-            f'  Print Sprintf("{os.path.abspath(frame_dir)}/frame_%05g.png", step);\n'
-        )
+        frame_pattern = gmsh_escape(os.path.abspath(frame_dir) + "/frame_%05g.png")
+        f.write(f'  Print Sprintf("{frame_pattern}", step);\n')
         f.write("EndFor\n")
         f.write("Exit;\n")
 
@@ -91,7 +94,9 @@ def build_gif_with_pillow(frame_dir: str, out_file: str, fps: int) -> None:
             images.append(img.copy())
 
     duration_ms = max(1, round(1000 / fps))
-    os.makedirs(os.path.dirname(os.path.abspath(out_file)), exist_ok=True)
+    out_dir = os.path.dirname(os.path.abspath(out_file))
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     images[0].save(
         out_file,
         save_all=True,
