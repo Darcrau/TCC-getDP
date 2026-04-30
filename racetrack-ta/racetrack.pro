@@ -236,13 +236,13 @@ PostOperation {
         Operation {
             Print[ time[OmegaC], OnRegion OmegaC,
                 LastTimeStepOnly, Format Table, SendToServer "Output/0Time [s]"];
-            Print[ I_1, OnRegion Edge1_R1,
+            Print[ I, OnRegion Edge1_R1,
                 LastTimeStepOnly, Format Table, SendToServer "Output/1Current turn 1 [A]"];
-            Print[ I_2, OnRegion Edge1_R2,
+            Print[ I, OnRegion Edge1_R2,
                 LastTimeStepOnly, Format Table, SendToServer "Output/2Current turn 2 [A]"];
-            Print[ I_3, OnRegion Edge1_R3,
+            Print[ I, OnRegion Edge1_R3,
                 LastTimeStepOnly, Format Table, SendToServer "Output/3Current turn 3 [A]"];
-            Print[ I_4, OnRegion Edge1_R4,
+            Print[ I, OnRegion Edge1_R4,
                 LastTimeStepOnly, Format Table, SendToServer "Output/4Current turn 4 [A]"];
         }
     }
