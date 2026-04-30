@@ -9,7 +9,9 @@
 DefineConstant[
     R_inf             = {0.06,  Name "Input/1Geometry/Outer radius (m)",    Closed 1}, // Outer air domain radius [m]
     W_tape            = {4e-3,  Name "Input/1Geometry/Tape width (m)"},                // Width of each HTS tape [m]
-    H_tape            = {1e-6,  Name "Input/1Geometry/Tape thickness (m)"}, // Thickness of each HTS tape [m]
+    H_tape            = {1e-6,  Name "Input/1Geometry/Tape thickness (m)"}, // Effective thickness for T-A formulation [m]
+                                                                              // (T-A models tapes as 1D lines; H_tape enters only as a scaling factor
+                                                                              //  in the current-density calculation: j = t/H_tape)
     separation        = {0.020, Name "Input/1Geometry/Bundle separation (m)"}, // Distance from origin to tape-bundle centre [m]
     tapeSpacing       = {8e-3,  Name "Input/1Geometry/Tape spacing (m)"},  // Vertical pitch between consecutive turns [m]
     meshLayerWidthTape = {0.001}

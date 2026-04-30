@@ -135,7 +135,7 @@ Function {
 
     // --- Traveling-wave phase shifts ---
     // phaseShift = 2π / numTurns = π/2 for 4 turns
-    phaseShift = 2 * Pi / 4;
+    phaseShift = 2 * Pi / numTurns;
 
     // Per-turn current functions (right-side tapes, positive current)
     I_1[] = Imax * Sin[2 * Pi * f * $Time + 0 * phaseShift];

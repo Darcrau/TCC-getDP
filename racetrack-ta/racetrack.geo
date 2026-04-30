@@ -112,24 +112,24 @@ Physical Line("Conducting domain",       MATERIAL)     = {allTapeLines[]};
 Physical Line("Conducting domain bnd",   BND_MATERIAL) = {allTapeLines[]};
 
 // --- Right-side tape edge points ---
-Physical Point("Right tape 1 – left edge",  EDGE_1_R1) = {200};
-Physical Point("Right tape 1 – right edge", EDGE_2_R1) = {201};
-Physical Point("Right tape 2 – left edge",  EDGE_1_R2) = {202};
-Physical Point("Right tape 2 – right edge", EDGE_2_R2) = {203};
-Physical Point("Right tape 3 – left edge",  EDGE_1_R3) = {204};
-Physical Point("Right tape 3 – right edge", EDGE_2_R3) = {205};
-Physical Point("Right tape 4 – left edge",  EDGE_1_R4) = {206};
-Physical Point("Right tape 4 – right edge", EDGE_2_R4) = {207};
+Physical Point("Right tape 1 - left edge",  EDGE_1_R1) = {200};
+Physical Point("Right tape 1 - right edge", EDGE_2_R1) = {201};
+Physical Point("Right tape 2 - left edge",  EDGE_1_R2) = {202};
+Physical Point("Right tape 2 - right edge", EDGE_2_R2) = {203};
+Physical Point("Right tape 3 - left edge",  EDGE_1_R3) = {204};
+Physical Point("Right tape 3 - right edge", EDGE_2_R3) = {205};
+Physical Point("Right tape 4 - left edge",  EDGE_1_R4) = {206};
+Physical Point("Right tape 4 - right edge", EDGE_2_R4) = {207};
 
 // --- Left-side tape edge points ---
-Physical Point("Left tape 1 – left edge",  EDGE_1_L1) = {210};
-Physical Point("Left tape 1 – right edge", EDGE_2_L1) = {211};
-Physical Point("Left tape 2 – left edge",  EDGE_1_L2) = {212};
-Physical Point("Left tape 2 – right edge", EDGE_2_L2) = {213};
-Physical Point("Left tape 3 – left edge",  EDGE_1_L3) = {214};
-Physical Point("Left tape 3 – right edge", EDGE_2_L3) = {215};
-Physical Point("Left tape 4 – left edge",  EDGE_1_L4) = {216};
-Physical Point("Left tape 4 – right edge", EDGE_2_L4) = {217};
+Physical Point("Left tape 1 - left edge",  EDGE_1_L1) = {210};
+Physical Point("Left tape 1 - right edge", EDGE_2_L1) = {211};
+Physical Point("Left tape 2 - left edge",  EDGE_1_L2) = {212};
+Physical Point("Left tape 2 - right edge", EDGE_2_L2) = {213};
+Physical Point("Left tape 3 - left edge",  EDGE_1_L3) = {214};
+Physical Point("Left tape 3 - right edge", EDGE_2_L3) = {215};
+Physical Point("Left tape 4 - left edge",  EDGE_1_L4) = {216};
+Physical Point("Left tape 4 - right edge", EDGE_2_L4) = {217};
 
 Physical Point("Arbitrary Point", ARBITRARY_POINT) = {2};
 
