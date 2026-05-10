@@ -143,12 +143,11 @@ Formulation {
             Galerkin { [ - $DTime * 1./thickness[] * rho[] * Normal[] /\ (Dof{d t} /\ Normal[]) , {d t} ];
                 In LinOmegaC; Integration Int; Jacobian Sur;  }
             Galerkin { [ - $DTime * Dof{V} , {t} ];
-                In OmegaC; Integration Int; Jacobian Sur; }
-            GlobalTerm { [ 1./thickness[] * Dof{d t} /\ Normal[] , {V} ];
-                In OmegaC; Integration Int; Jacobian Sur; }
-            GlobalTerm { [ - Dof{I_total} , {V} ] ; In PositiveEdges ; }
-            GlobalTerm { [ - $DTime * 1./thickness[] * rho[1./thickness[] *{d t} /\ Normal[], Norm[{d a}] ] * (Dof{d t} /\ Normal[]) , {T} ];
                 In PositiveEdges; Integration Int; Jacobian Sur; }
+            GlobalTerm { [ Dof{d t} /\ Normal[] , {V} ];
+                In OmegaC; Integration Int; Jacobian Sur; }
+            GlobalTerm { [ - Dof{I_total} , {V} ] ;
+                In PositiveEdges ; }
             // ---- FERRO ----
             // Curl h term - NonMagnDomain
             Galerkin { [ nu[] * Dof{d a} , {d a} ];
