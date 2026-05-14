@@ -33,14 +33,37 @@ MATERIAL = 23000;
 BND_MATERIAL = 25000;
 BND_MATERIAL_SIDE = 26000;
 THICK_CUT = SURF_OUT+1; // Fix me! It will be different depending on the other physical IDs
-// Novas Tags para 2 fitas independentes
+DefineConstant[
+numTapes = {3, Min 1, Max 10, Step 1, Name "Input/1Geometry/Number of tapes"}
+];
+// Tags para fitas independentes (buffer até 10 fitas)
 MATERIAL_1 = 3001; 
 MATERIAL_2 = 3002;
+MATERIAL_3 = 3003;
+MATERIAL_4 = 3004;
+MATERIAL_5 = 3005;
+MATERIAL_6 = 3006;
+MATERIAL_7 = 3007;
+MATERIAL_8 = 3008;
+MATERIAL_9 = 3009;
+MATERIAL_10 = 3010;
 EDGE_1_1 = 3101; 
 EDGE_1_2 = 3102;
+EDGE_1_3 = 3103;
+EDGE_1_4 = 3104;
+EDGE_1_5 = 3105;
+EDGE_1_6 = 3106;
+EDGE_1_7 = 3107;
+EDGE_1_8 = 3108;
+EDGE_1_9 = 3109;
+EDGE_1_10 = 3110;
 EDGE_2_1 = 3201; 
 EDGE_2_2 = 3202;
-// Tags para a Fita 3
-MATERIAL_3 = 3003;
-EDGE_1_3 = 3103; // Borda positiva
-EDGE_2_3 = 3203; // Borda negativa
+EDGE_2_3 = 3203;
+EDGE_2_4 = 3204;
+EDGE_2_5 = 3205;
+EDGE_2_6 = 3206;
+EDGE_2_7 = 3207;
+EDGE_2_8 = 3208;
+EDGE_2_9 = 3209;
+EDGE_2_10 = 3210;

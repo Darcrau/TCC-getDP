@@ -36,17 +36,25 @@ Group {
     Air += Region[ AIR_OUT ];
     
     If(MaterialType == 0)
-        Air += Region[ {MATERIAL_1, MATERIAL_2} ];
+        For i In {1:numTapes}
+            Air += Region[ MATERIAL_~{i} ];
+        EndFor
     ElseIf(MaterialType == 1 || MaterialType == 2)
         
         // 1. Definimos as fitas independentes primeiro
-        Super1 = Region[ MATERIAL_1 ];
-        Super2 = Region[ MATERIAL_2 ];
-        Super3 = Region[ MATERIAL_3 ];
-        Super = Region[ {Super1, Super2, Super3} ];
+        For i In {1:numTapes}
+            Super~{i} = Region[ MATERIAL_~{i} ];
+        EndFor
+        Super = Region[ {Super1} ];
+        For i In {2:numTapes}
+            Super += Region[ Super~{i} ];
+        EndFor
         
         // 2. Agora o Condutor geral recebe as fitas
-        Cond = Region[ {Super1, Super2, Super3} ];
+        Cond = Region[ {Super1} ];
+        For i In {2:numTapes}
+            Cond += Region[ Super~{i} ];
+        EndFor
         
         BndOmegaC += Region[ BND_MATERIAL ];
         BndOmegaC_side += Region[ BND_MATERIAL_SIDE ];
@@ -61,29 +69,35 @@ Group {
             // Super já foi montado acima, apenas ativamos a flag
             IsThereSuper = 1;
         ElseIf(MaterialType == 2)
-            Copper += Region[ {MATERIAL_1, MATERIAL_2} ];
+            For i In {1:numTapes}
+                Copper += Region[ MATERIAL_~{i} ];
+            EndFor
         EndIf
         
     ElseIf(MaterialType == 3)
-        Ferro += Region[ {MATERIAL_1, MATERIAL_2} ];
+        For i In {1:numTapes}
+            Ferro += Region[ MATERIAL_~{i} ];
+        EndFor
         IsThereFerro = 1;
     EndIf
 
     // Edges of the tape: Separando fisicamente para permitir correntes diferentes
-    Edge1_1 = Region[ EDGE_1_1 ]; // Borda + da fita 1
-    Edge1_2 = Region[ EDGE_1_2 ]; // Borda + da fita 2
-    Edge1_3 = Region[ EDGE_1_3 ]; // Borda + da fita 3
-    
-    Edge2_1 = Region[ EDGE_2_1 ]; // Borda - da fita 1
-    Edge2_2 = Region[ EDGE_2_2 ]; // Borda - da fita 2
-    Edge2_3 = Region[ EDGE_2_3 ]; // Borda - da fita 3
+    For i In {1:numTapes}
+        Edge1_~{i} = Region[ EDGE_1_~{i} ]; // Borda + da fita
+        Edge2_~{i} = Region[ EDGE_2_~{i} ]; // Borda - da fita
+    EndFor
     
     // Agrupamentos lógicos para as equações gerais
-    Edge1 = Region[ {Edge1_1, Edge1_2, Edge1_3} ];
-    Edge2 = Region[ {Edge2_1, Edge2_2, Edge2_3} ];
+    Edge1 = Region[ {Edge1_1} ];
+    Edge2 = Region[ {Edge2_1} ];
+    PositiveEdges = Region[ {Edge1_1} ];
+    For i In {2:numTapes}
+        Edge1 += Region[ Edge1_~{i} ];
+        Edge2 += Region[ Edge2_~{i} ];
+        PositiveEdges += Region[ Edge1_~{i} ];
+    EndFor
     
     LateralEdges = Region[ {Edge1, Edge2} ];
-    PositiveEdges = Region[ {Edge1_1, Edge1_2, Edge1_3} ];
 
     // Fill the regions for formulation
     MagnAnhyDomain = Region[ {Ferro} ];
@@ -227,11 +241,13 @@ PostOperation {
     { Name Info;
             NameOfPostProcessing MagDyn_ta ;
         Operation{
-            Print[ time[OmegaC], OnRegion OmegaC, LastTimeStepOnly, Format Table, SendToServer "Output/0Time [s]"] ;
-                Print[ I1, OnRegion Edge1_1, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 1 [A]"] ;
-                Print[ I2, OnRegion Edge1_2, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 2 [A]"] ;
-                Print[ V, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/2Tension [Vm^-1]"] ;
-                Print[ dissPower[OmegaC], OnGlobal, LastTimeStepOnly, Format Table, SendToServer "Output/3Joule loss [W]"] ;
+                Print[ time[OmegaC], OnRegion OmegaC, LastTimeStepOnly, Format Table, SendToServer "Output/0Time [s]"] ;
+                For i In {1:numTapes}
+                    Print[ I~{i}, OnRegion Edge1_~{i}, LastTimeStepOnly, Format Table,
+                        SendToServer Sprintf["Output/1Current Tape %g [A]", i]] ;
+                EndFor
+                    Print[ V, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/2Tension [Vm^-1]"] ;
+                    Print[ dissPower[OmegaC], OnGlobal, LastTimeStepOnly, Format Table, SendToServer "Output/3Joule loss [W]"] ;
         }
     }
     { Name MagDyn;LastTimeStepOnly realTimeSolution ;
@@ -249,9 +265,10 @@ PostOperation {
                     Print[ b, OnElementsOf OmegaCC , File "res/b.pos", Name "b [T]" ];
             EndIf
                 Print[ j, OnElementsOf OmegaC, Format TimeTable, File outputCurrent];
-                Print[ I1, OnRegion Edge1_1, Format TimeTable, File StrCat[outputDirectory,"/current1.txt"] ];
-                Print[ I2, OnRegion Edge1_2, Format TimeTable, File StrCat[outputDirectory,"/current2.txt"] ];
-                Print[ I3, OnRegion Edge1_3, Format TimeTable, File StrCat[outputDirectory,"/current3.txt"] ];
+                For i In {1:numTapes}
+                    Print[ I~{i}, OnRegion Edge1_~{i}, Format TimeTable,
+                        File StrCat[outputDirectory, Sprintf["/current%g.txt", i]] ];
+                EndFor
             Print[ b, OnLine{{List[controlPoint1]}{List[controlPoint2]}} {savedPoints},
                 Format TimeTable, File outputMagInduction1];
             Print[ b, OnLine{{List[controlPoint3]}{List[controlPoint4]}} {savedPoints},

@@ -22,7 +22,9 @@ Circle(8) = {8, 100, 2};
 
 
 tapeSpacing = 0.15e-3;
-numTapes = 3;// Número total de tapes (inclui a original)
+materialTags[] = {MATERIAL_1, MATERIAL_2, MATERIAL_3, MATERIAL_4, MATERIAL_5, MATERIAL_6, MATERIAL_7, MATERIAL_8, MATERIAL_9, MATERIAL_10};
+edge1Tags[] = {EDGE_1_1, EDGE_1_2, EDGE_1_3, EDGE_1_4, EDGE_1_5, EDGE_1_6, EDGE_1_7, EDGE_1_8, EDGE_1_9, EDGE_1_10};
+edge2Tags[] = {EDGE_2_1, EDGE_2_2, EDGE_2_3, EDGE_2_4, EDGE_2_5, EDGE_2_6, EDGE_2_7, EDGE_2_8, EDGE_2_9, EDGE_2_10};
 
 // Array para armazenar os IDs das linhas das tapes
 linhasTapes[] = {};
@@ -57,24 +59,14 @@ Curve{linhasTapes[]} In Surface{2};
 Physical Surface("Air", AIR) = {2};
 Physical Line("Exterior boundary", SURF_OUT) = {2, 4, 6, 8};
 
-Physical Line("Conducting domain 1", MATERIAL_1) = {linhasTapes[0]};
-Physical Line("Conducting domain 2", MATERIAL_2) = {linhasTapes[1]};
-
-
 Physical Line("Conducting domain boundary", BND_MATERIAL) = {linhasTapes[]};
 
-
-
-Physical Point("Left edge 1", EDGE_1_1) = {pontosEsquerda[0]};
-Physical Point("Left edge 2", EDGE_1_2) = {pontosEsquerda[1]};
-
-Physical Point("Right edge 1", EDGE_2_1) = {pontosDireita[0]};
-Physical Point("Right edge 2", EDGE_2_2) = {pontosDireita[1]};
-
-
-Physical Line("Conducting domain 3", MATERIAL_3) = {linhasTapes[2]};
-Physical Point("Left edge 3", EDGE_1_3) = {pontosEsquerda[2]};
-Physical Point("Right edge 3", EDGE_2_3) = {pontosDireita[2]};
+For i In {1:numTapes}
+  idx = i - 1;
+  Physical Line(Sprintf("Conducting domain %g", i), materialTags[idx]) = {linhasTapes[idx]};
+  Physical Point(Sprintf("Left edge %g", i), edge1Tags[idx]) = {pontosEsquerda[idx]};
+  Physical Point(Sprintf("Right edge %g", i), edge2Tags[idx]) = {pontosDireita[idx]};
+EndFor
 
 
 
@@ -92,4 +84,3 @@ Color Blue {Surface{2};}
 Hide { Point{ Point '*' }; }
 
 Cohomology(1) {{AIR}, {}};
-

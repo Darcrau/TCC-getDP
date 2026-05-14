@@ -389,9 +389,9 @@ PostOperation {
                 Print[ dissPowerGlobal, OnRegion PositiveEdges, Format Table, StoreInVariable $indicDissGlobal ];
                 Print[ V, OnRegion PositiveEdges, Format Table, StoreInVariable $Voltage ];
                 Print[ I, OnRegion Edge1_1, Format Table, StoreInVariable $Current ];
-                Print[ I1, OnRegion Edge1_1, Format Table, StoreInVariable $Current1 ];
-                Print[ I2, OnRegion Edge1_2, Format Table, StoreInVariable $Current2 ];
-                Print[ I3, OnRegion Edge1_3, Format Table, StoreInVariable $Current3 ];
+                For i In {1:numTapes}
+                    Print[ I~{i}, OnRegion Edge1_~{i}, Format Table, StoreInVariable $Current~{i} ];
+                EndFor
             EndIf
         }
     }
