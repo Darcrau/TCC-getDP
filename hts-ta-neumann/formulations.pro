@@ -145,7 +145,7 @@ Formulation {
             Galerkin { [ - $DTime * Dof{V} , {t} ];
                 In PositiveEdges; Integration Int; Jacobian Sur; }
             GlobalTerm { [ Dof{d t} /\ Normal[] , {V} ];
-                In OmegaC; Integration Int; Jacobian Sur; }
+                In OmegaC; }
             GlobalTerm { [ - Dof{I_total} , {V} ] ;
                 In PositiveEdges ; }
             // ---- FERRO ----
