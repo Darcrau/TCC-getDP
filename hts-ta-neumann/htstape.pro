@@ -203,7 +203,7 @@ PostOperation {
             Print[ time[OmegaC], OnRegion OmegaC, LastTimeStepOnly, Format Table, SendToServer "Output/0Time [s]"] ;
                 Print[ I, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/1Applied current [A]"] ;
                 Print[ V, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/2Tension [Vm^-1]"] ;
-            //Print[ dissPower[OmegaC], OnGlobal, LastTimeStepOnly, Format Table, SendToServer "Output/3Joule loss [W]"] ;
+                Print[ dissPower[OmegaC], OnGlobal, LastTimeStepOnly, Format Table, SendToServer "Output/3Joule loss [W]"] ;
         }
     }
     { Name MagDyn;LastTimeStepOnly realTimeSolution ;

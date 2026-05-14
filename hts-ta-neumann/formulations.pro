@@ -86,12 +86,11 @@ FunctionSpace {
         GlobalQuantity {
             { Name T ; Type AliasOf        ; NameOfCoef Ti ; }
             { Name V ; Type AssociatedWith ; NameOfCoef Ti ; }
-            { Name I_total ; Type AssociatedWith ; NameOfCoef Ti ; }
         }
         Constraint {
             { NameOfCoef V;
                 EntityType GroupsOfNodesOf; NameOfConstraint Voltage; }
-            { NameOfCoef I_total;
+            { NameOfCoef T;
                 EntityType GroupsOfNodesOf; NameOfConstraint Current; }
         }
     }
@@ -111,7 +110,6 @@ Formulation {
             { Name t; Type Local; NameOfSpace t_space; }
             { Name T; Type Global; NameOfSpace t_space[T]; }
             { Name V; Type Global; NameOfSpace t_space[V]; }
-            { Name I_total; Type Global; NameOfSpace t_space[I_total]; }
             If(Dim == 3)
                 { Name a; Type Local; NameOfSpace a_space_3D; }
             Else
@@ -142,12 +140,9 @@ Formulation {
             // Linear OmegaC
             Galerkin { [ - $DTime * 1./thickness[] * rho[] * Normal[] /\ (Dof{d t} /\ Normal[]) , {d t} ];
                 In LinOmegaC; Integration Int; Jacobian Sur;  }
-            Galerkin { [ - $DTime * Dof{V} , {t} ];
-                In PositiveEdges; Integration Int; Jacobian Sur; }
-            GlobalTerm { [ Dof{d t} /\ Normal[] , {V} ];
-                In OmegaC; }
-            GlobalTerm { [ - Dof{I_total} , {V} ] ;
-                In PositiveEdges ; }
+            // Neumann BC: Global coupling through voltage-current relationship (Wang et al. 2022, Eq. 9-12)
+            // This term enables E-field coupling across the tape boundary, providing Neumann-type BC
+            GlobalTerm { [ - $DTime * Dof{V} , {T} ] ; In PositiveEdges ; }
             // ---- FERRO ----
             // Curl h term - NonMagnDomain
             Galerkin { [ nu[] * Dof{d a} , {d a} ];
@@ -162,6 +157,15 @@ Formulation {
             // Surface term
             Galerkin { [ - Dof{d t} /\ Normal[] , {a}]; // Dof{d t} /\ Normal[] is the current density!
                 In BndOmega_ha; Integration Int; Jacobian Sur; }
+            // ------------------------- OPTIONAL Neumann BC -------------------------
+            // Enable the weak-form Neumann boundary term representing (E x delta(T))·dA
+            // per Wang et al. 2022, Appendix A. This follows existing rho(...) usage.
+            Galerkin { [ - 1./thickness[] * rho[1./thickness[] * {d t} /\ Normal[], Norm[{d a}] ] * ({d t} /\ Normal[]) , {a} ];
+                In BndOmega_ha; Integration Int; Jacobian Sur; }
+            // Notes:
+            // - If GetDP errors about function arguments, ensure `lawsAndFunctions.pro` defines rho[...] as in this repo.
+            // - If the integral domain is incorrect, check `BndOmega_ha` mapping in `jac_int.pro`.
+            // ----------------------------------------------------------------------
             If(Dim == 3)
                 Galerkin { [ - hsVal[] * (directionApplied[] /\ Normal[]), {a} ];
                     In Gamma_h ; Integration Int ; Jacobian Sur; }
