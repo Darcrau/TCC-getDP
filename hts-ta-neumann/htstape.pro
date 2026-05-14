@@ -88,13 +88,16 @@ Group {
     EndFor
     
     // Agrupamentos lógicos para as equações gerais
-    Edge1 = Region[ {Edge1_1} ];
-    Edge2 = Region[ {Edge2_1} ];
-    PositiveEdges = Region[ {Edge1_1} ];
-    For i In {2:numTapes}
-        Edge1 += Region[ Edge1_~{i} ];
-        Edge2 += Region[ Edge2_~{i} ];
-        PositiveEdges += Region[ Edge1_~{i} ];
+    For i In {1:numTapes}
+        If(i == 1)
+            Edge1 = Region[ Edge1_1 ];
+            Edge2 = Region[ Edge2_1 ];
+            PositiveEdges = Region[ Edge1_1 ];
+        Else
+            Edge1 += Region[ Edge1_~{i} ];
+            Edge2 += Region[ Edge2_~{i} ];
+            PositiveEdges += Region[ Edge1_~{i} ];
+        EndIf
     EndFor
     
     LateralEdges = Region[ {Edge1, Edge2} ];

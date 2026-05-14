@@ -265,7 +265,7 @@ PostProcessing {
             { Name I; // Corrente total recuperada para manter a compatibilidade
                 Value{
                     For i In {1:numTapes}
-                        Term{ [ {T~{i}} ] ; In Edge1_1; }
+                        Term{ [ {T~{i}} ] ; In Edge1_~{i}; }
                     EndFor
                 }
             }
@@ -273,7 +273,7 @@ PostProcessing {
                 Value{
                     // Potência total = V * soma das correntes
                     For i In {1:numTapes}
-                        Term{ [ thickness[] * {V}*{T~{i}} ] ; In Edge1_1;}
+                        Term{ [ thickness[] * {V}*{T~{i}} ] ; In Edge1_~{i};}
                     EndFor
                 }
             }

@@ -33,6 +33,7 @@ MATERIAL = 23000;
 BND_MATERIAL = 25000;
 BND_MATERIAL_SIDE = 26000;
 THICK_CUT = SURF_OUT+1; // Fix me! It will be different depending on the other physical IDs
+// Número de fitas no stack (usa tags MATERIAL_/EDGE_ até 10)
 DefineConstant[
 numTapes = {3, Min 1, Max 10, Step 1, Name "Input/1Geometry/Number of tapes"}
 ];
