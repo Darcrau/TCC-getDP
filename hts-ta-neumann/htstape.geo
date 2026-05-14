@@ -21,8 +21,8 @@ Circle(6) = {6, 100, 8};
 Circle(8) = {8, 100, 2};
 
 
-tapeSpacing = H_tape*3; // Espaço entre tapes (ajuste conforme necessário)
-numTapes = 1; // Número total de tapes (inclui a original)
+tapeSpacing = 0.15e-3;
+numTapes = 2; // Número total de tapes (inclui a original)
 
 // Array para armazenar os IDs das linhas das tapes
 linhasTapes[] = {};
@@ -56,10 +56,24 @@ Plane Surface(2) = {30};
 Curve{linhasTapes[]} In Surface{2};
 Physical Surface("Air", AIR) = {2};
 Physical Line("Exterior boundary", SURF_OUT) = {2, 4, 6, 8};
-Physical Line("Conducting domain", MATERIAL) = {linhasTapes[]};
+
+Physical Line("Conducting domain 1", MATERIAL_1) = {linhasTapes[0]};
+Physical Line("Conducting domain 2", MATERIAL_2) = {linhasTapes[1]};
+
+
 Physical Line("Conducting domain boundary", BND_MATERIAL) = {linhasTapes[]};
-Physical Point("Left edge", EDGE_1) = {pontosEsquerda[]};
-Physical Point("Right edge", EDGE_2) = {pontosDireita[]};
+
+
+
+Physical Point("Left edge 1", EDGE_1_1) = {pontosEsquerda[0]};
+Physical Point("Left edge 2", EDGE_1_2) = {pontosEsquerda[1]};
+
+Physical Point("Right edge 1", EDGE_2_1) = {pontosDireita[0]};
+Physical Point("Right edge 2", EDGE_2_2) = {pontosDireita[1]};
+
+
+
+
 Physical Point("Arbitrary Point", ARBITRARY_POINT) = {2};
 // Empty regions
 Physical Surface("Spherical shell", AIR_OUT) = {};

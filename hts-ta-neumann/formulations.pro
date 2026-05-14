@@ -76,24 +76,20 @@ FunctionSpace {
     { Name t_space; Type Form0;
         BasisFunction {
             { Name psin; NameOfCoef tn; Function BF_Node;
-                Support Omega_h; Entity NodesOf[All, Not LateralEdges]; } // = 0 on lateral edges
-            // { Name psin2; NameOfCoef tn2; Function BF_Node_2E;
-            //    Support Omega_h; Entity EdgesOf[All, Not Lateral  Edges]; } // Leads to issues with Newton-Raphson -> Why?
-            { Name psii; NameOfCoef Ti; Function BF_GroupOfNodes;
-                Support Omega_h_OmegaC_AndBnd; Entity GroupsOfNodesOf[PositiveEdges]; }
-
+                Support Super; Entity NodesOf[All, Not LateralEdges]; }
+            // Coeficientes independentes para cada fita
+            { Name psii1; NameOfCoef Ti1; Function BF_GroupOfNodes;
+                Support Super1; Entity GroupsOfNodesOf[Edge1_1]; }
+            { Name psii2; NameOfCoef Ti2; Function BF_GroupOfNodes;
+                Support Super2; Entity GroupsOfNodesOf[Edge1_2]; }
         }
         GlobalQuantity {
-            { Name T ; Type AliasOf        ; NameOfCoef Ti ; }
-            { Name V ; Type AssociatedWith ; NameOfCoef Ti ; }
+            { Name T1 ; Type AliasOf ; NameOfCoef Ti1 ; }
+            { Name T2 ; Type AliasOf ; NameOfCoef Ti2 ; }
+            { Name V  ; Type AssociatedWith ; NameOfCoef Ti1 ; } // V é comum a ambas
         }
-        Constraint {
-            { NameOfCoef V;
-                EntityType GroupsOfNodesOf; NameOfConstraint Voltage; }
-            { NameOfCoef T;
-                EntityType GroupsOfNodesOf; NameOfConstraint Current; }
+        // Não coloque Constraints aqui para T1, T2 ou V!
         }
-    }
     }
 
 // ----------------------------------------------------------------------------
@@ -108,7 +104,8 @@ Formulation {
     { Name MagDyn_ta; Type FemEquation;
         Quantity {
             { Name t; Type Local; NameOfSpace t_space; }
-            { Name T; Type Global; NameOfSpace t_space[T]; }
+            { Name T1; Type Global; NameOfSpace t_space[T1]; } // Corrente da fita 1
+            { Name T2; Type Global; NameOfSpace t_space[T2]; } // Corrente da fita 2
             { Name V; Type Global; NameOfSpace t_space[V]; }
             If(Dim == 3)
                 { Name a; Type Local; NameOfSpace a_space_3D; }
@@ -140,9 +137,7 @@ Formulation {
             // Linear OmegaC
             Galerkin { [ - $DTime * 1./thickness[] * rho[] * Normal[] /\ (Dof{d t} /\ Normal[]) , {d t} ];
                 In LinOmegaC; Integration Int; Jacobian Sur;  }
-            // Neumann BC: Global coupling through voltage-current relationship (Wang et al. 2022, Eq. 9-12)
-            // This term enables E-field coupling across the tape boundary, providing Neumann-type BC
-            GlobalTerm { [ - $DTime * Dof{V} , {T} ] ; In PositiveEdges ; }
+                
             // ---- FERRO ----
             // Curl h term - NonMagnDomain
             Galerkin { [ nu[] * Dof{d a} , {d a} ];
@@ -157,21 +152,21 @@ Formulation {
             // Surface term
             Galerkin { [ - Dof{d t} /\ Normal[] , {a}]; // Dof{d t} /\ Normal[] is the current density!
                 In BndOmega_ha; Integration Int; Jacobian Sur; }
-            // ------------------------- OPTIONAL Neumann BC -------------------------
-            // Enable the weak-form Neumann boundary term representing (E x delta(T))·dA
-            // per Wang et al. 2022, Appendix A. This follows existing rho(...) usage.
-            // Galerkin { [ - 1./thickness[] * rho[1./thickness[] * {d t} /\ Normal[], Norm[{d a}] ] * ({d t} /\ Normal[]) , {a} ];
-           //      In BndOmega_ha; Integration Int; Jacobian Sur; }
-           // ------------------------- CORRECTED Neumann BC -------------------------
-            // Term representing \int (E x delta(T))·dA applied to the T-formulation
-            // Utiliza a função de teste {t} para acoplar na Lei de Faraday, 
-            // atuando nas bordas laterais da fita.
-         //   Galerkin { [ $DTime * 1./thickness[] * rho[1./thickness[] * {d t} /\ Normal[], Norm[{d a}]] * ({d t} /\ Normal[]) , {t} ]; 
-        //    In LateralEdges; Integration Int; Jacobian Sur; }
-            // Notes:
-            // - If GetDP errors about function arguments, ensure `lawsAndFunctions.pro` defines rho[...] as in this repo.
-            // - If the integral domain is incorrect, check `BndOmega_ha` mapping in `jac_int.pro`.
-            // ----------------------------------------------------------------------
+
+            // ====================================================================
+            // MODELO DE CIRCUITO (DUAS FITAS EM PARALELO)
+            // ====================================================================
+            // 1. Acoplamento de Faraday (A tensão V dita a dinâmica em cada fita)
+            GlobalTerm { [ - $DTime * Dof{V} , {T1} ] ; In Edge1_1 ; }
+            GlobalTerm { [ - $DTime * Dof{V} , {T2} ] ; In Edge1_2 ; }
+
+            // 2. Lei dos Nós de Kirchhoff (T1 + T2 = I_total)
+            // Impõe que a soma das correntes nas fitas seja igual à corrente da fonte I[]
+            GlobalTerm { [ Dof{T1} , {V} ] ; In Edge1_1 ; }
+            GlobalTerm { [ Dof{T2} , {V} ] ; In Edge1_1 ; }
+            GlobalTerm { [ -I[] , {V} ] ; In Edge1_1 ; }    
+            // ====================================================================
+
             If(Dim == 3)
                 Galerkin { [ - hsVal[] * (directionApplied[] /\ Normal[]), {a} ];
                     In Gamma_h ; Integration Int ; Jacobian Sur; }
@@ -257,20 +252,24 @@ PostProcessing {
                 }
             }
             { Name V;
-                Value{
-                    Term{ [ {V} ] ; In PositiveEdges;}
-                }
+                Value{ Term{ [ {V} ] ; In PositiveEdges;} }
             }
-            { Name I;
-                Value{
-                    Term{ [ {T} ] ; In PositiveEdges;}
-                }
+            { Name I1; // Corrente na fita 1
+                Value{ Term{ [ {T1} ] ; In Edge1_1;} }
+            }
+            { Name I2; // Corrente na fita 2
+                Value{ Term{ [ {T2} ] ; In Edge1_2;} }
+            }
+            { Name I; // Corrente total recuperada para manter a compatibilidade
+                Value{ Term{ [ {T1} + {T2} ] ; In Edge1_1;} }
             }
             { Name dissPowerGlobal;
                 Value{
-                    Term{ [ thickness[] * {V}*{T} ] ; In PositiveEdges;}
+                    // Potência total = V * (I1 + I2)
+                    Term{ [ thickness[] * {V}*({T1} + {T2}) ] ; In Edge1_1;}
                 }
             }
+
         }
     }
 }
