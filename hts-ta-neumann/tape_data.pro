@@ -33,3 +33,10 @@ MATERIAL = 23000;
 BND_MATERIAL = 25000;
 BND_MATERIAL_SIDE = 26000;
 THICK_CUT = SURF_OUT+1; // Fix me! It will be different depending on the other physical IDs
+// Novas Tags para 2 fitas independentes
+MATERIAL_1 = 3001; 
+MATERIAL_2 = 3002;
+EDGE_1_1 = 3101; 
+EDGE_1_2 = 3102;
+EDGE_2_1 = 3201; 
+EDGE_2_2 = 3202;

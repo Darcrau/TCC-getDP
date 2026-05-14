@@ -22,7 +22,7 @@ Group {
     //      2 -> applied current + applied field (most realistic)
     SourceType = 0;
 
-    // ------- WEAK FORMULATION -------
+// ------- WEAK FORMULATION -------
     // Choice of the formulation
     formulation = ta_formulation;
 
@@ -30,36 +30,57 @@ Group {
     // ------- Definition of the physical regions -------
     // Material type of region MATERIAL, 0: air, 1: super, 2: copper, 3: soft ferro
     MaterialType = 1;
+    
     // Filling the regions
     Air = Region[ AIR ];
     Air += Region[ AIR_OUT ];
+    
     If(MaterialType == 0)
-        Air += Region[ MATERIAL ];
+        Air += Region[ {MATERIAL_1, MATERIAL_2} ];
     ElseIf(MaterialType == 1 || MaterialType == 2)
-        Cond = Region[ MATERIAL ];
+        
+        // 1. Definimos as fitas independentes primeiro
+        Super1 = Region[ MATERIAL_1 ];
+        Super2 = Region[ MATERIAL_2 ];
+        Super = Region[ {Super1, Super2} ];
+        
+        // 2. Agora o Condutor geral recebe as fitas
+        Cond = Region[ {Super1, Super2} ]; 
+        
         BndOmegaC += Region[ BND_MATERIAL ];
         BndOmegaC_side += Region[ BND_MATERIAL_SIDE ];
+        
         If (Flag_cohomology == 0)
             Cuts = Region[ {CUT} ];
         Else
             Cuts = Region[ {THICK_CUT} ]; // Cohomology basis representatives = thick cuts
         EndIf
+        
         If(MaterialType == 1)
-            Super += Region[ MATERIAL ];
+            // Super já foi montado acima, apenas ativamos a flag
             IsThereSuper = 1;
         ElseIf(MaterialType == 2)
-            Copper += Region[ MATERIAL ];
+            Copper += Region[ {MATERIAL_1, MATERIAL_2} ];
         EndIf
+        
     ElseIf(MaterialType == 3)
-        Ferro += Region[ MATERIAL ];
+        Ferro += Region[ {MATERIAL_1, MATERIAL_2} ];
         IsThereFerro = 1;
     EndIf
-    // Edges of the tape: to be used by the ta_formulation and the h_phi_ts_formulation
-    Edge1 = Region[ EDGE_1 ];
-    Edge2 = Region[ EDGE_2 ];
-    LateralEdges = Region[ {Edge1, Edge2} ];
-    PositiveEdges = Region[ {Edge1} ];
 
+    // Edges of the tape: Separando fisicamente para permitir correntes diferentes
+    Edge1_1 = Region[ EDGE_1_1 ]; // Borda + da fita 1
+    Edge1_2 = Region[ EDGE_1_2 ]; // Borda + da fita 2
+    
+    Edge2_1 = Region[ EDGE_2_1 ]; // Borda - da fita 1
+    Edge2_2 = Region[ EDGE_2_2 ]; // Borda - da fita 2
+    
+    // Agrupamentos lógicos para as equações gerais
+    Edge1 = Region[ {Edge1_1, Edge1_2} ];
+    Edge2 = Region[ {Edge2_1, Edge2_2} ];
+    
+    LateralEdges = Region[ {Edge1, Edge2} ];
+    PositiveEdges = Region[ {Edge1_1, Edge1_2} ];
 
     // Fill the regions for formulation
     MagnAnhyDomain = Region[ {Ferro} ];
@@ -77,6 +98,9 @@ Group {
     Gamma_h = Region[{SurfOut}];
     Gamma_e = Region[{SurfSym}];
     GammaAll = Region[ {Gamma_h, Gamma_e} ];
+
+
+
 }
 
 
@@ -172,18 +196,18 @@ Constraint {
             EndIf
         }
     }
-    { Name Current ; Type Assign;
-        Case {
-                If(SourceType == 0)
-                    { Region Edge1; Value 1.0; TimeFunction I[]; } // Applied current for I_total
-                ElseIf(SourceType == 1)
-                    { Region Edge1; Value 0.0; }
-                ElseIf(SourceType == 2)
-                    { Region Edge1; Value 1.0; TimeFunction I[]; } // Current + field (I_total)
-                EndIf
-        }
-    }
-    { Name Voltage ; Case { } } // Nothing
+    // { Name Current ; Type Assign;
+    //     Case {
+    //             If(SourceType == 0)
+    //                 { Region Edge1; Value 1.0; TimeFunction I[]; } // Applied current for I_total
+    //             ElseIf(SourceType == 1)
+    //                 { Region Edge1; Value 0.0; }
+    //             ElseIf(SourceType == 2)
+    //                 { Region Edge1; Value 1.0; TimeFunction I[]; } // Current + field (I_total)
+    //             EndIf
+    //     }
+    // }
+    // { Name Voltage ; Case { } } // Nothing
 
 
 }
@@ -201,7 +225,8 @@ PostOperation {
             NameOfPostProcessing MagDyn_ta ;
         Operation{
             Print[ time[OmegaC], OnRegion OmegaC, LastTimeStepOnly, Format Table, SendToServer "Output/0Time [s]"] ;
-                Print[ I, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/1Applied current [A]"] ;
+                Print[ I1, OnRegion Edge1_1, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 1 [A]"] ;
+                Print[ I2, OnRegion Edge1_2, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 2 [A]"] ;
                 Print[ V, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/2Tension [Vm^-1]"] ;
                 Print[ dissPower[OmegaC], OnGlobal, LastTimeStepOnly, Format Table, SendToServer "Output/3Joule loss [W]"] ;
         }

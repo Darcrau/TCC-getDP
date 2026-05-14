@@ -388,7 +388,9 @@ PostOperation {
             ElseIf(formulation == ta_formulation)
                 Print[ dissPowerGlobal, OnRegion PositiveEdges, Format Table, StoreInVariable $indicDissGlobal ];
                 Print[ V, OnRegion PositiveEdges, Format Table, StoreInVariable $Voltage ];
-                Print[ I, OnRegion PositiveEdges, Format Table, StoreInVariable $Current ];
+                Print[ I, OnRegion Edge1_1, Format Table, StoreInVariable $Current ];
+                Print[ I1, OnRegion Edge1_1, Format Table, StoreInVariable $Current1 ];
+                Print[ I2, OnRegion Edge1_2, Format Table, StoreInVariable $Current2 ];
             EndIf
         }
     }
