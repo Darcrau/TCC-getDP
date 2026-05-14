@@ -42,10 +42,11 @@ Group {
         // 1. Definimos as fitas independentes primeiro
         Super1 = Region[ MATERIAL_1 ];
         Super2 = Region[ MATERIAL_2 ];
-        Super = Region[ {Super1, Super2} ];
+        Super3 = Region[ MATERIAL_3 ];
+        Super = Region[ {Super1, Super2, Super3} ];
         
         // 2. Agora o Condutor geral recebe as fitas
-        Cond = Region[ {Super1, Super2} ]; 
+        Cond = Region[ {Super1, Super2, Super3} ];
         
         BndOmegaC += Region[ BND_MATERIAL ];
         BndOmegaC_side += Region[ BND_MATERIAL_SIDE ];
@@ -71,16 +72,18 @@ Group {
     // Edges of the tape: Separando fisicamente para permitir correntes diferentes
     Edge1_1 = Region[ EDGE_1_1 ]; // Borda + da fita 1
     Edge1_2 = Region[ EDGE_1_2 ]; // Borda + da fita 2
+    Edge1_3 = Region[ EDGE_1_3 ]; // Borda + da fita 3
     
     Edge2_1 = Region[ EDGE_2_1 ]; // Borda - da fita 1
     Edge2_2 = Region[ EDGE_2_2 ]; // Borda - da fita 2
+    Edge2_3 = Region[ EDGE_2_3 ]; // Borda - da fita 3
     
     // Agrupamentos lógicos para as equações gerais
-    Edge1 = Region[ {Edge1_1, Edge1_2} ];
-    Edge2 = Region[ {Edge2_1, Edge2_2} ];
+    Edge1 = Region[ {Edge1_1, Edge1_2, Edge1_3} ];
+    Edge2 = Region[ {Edge2_1, Edge2_2, Edge2_3} ];
     
     LateralEdges = Region[ {Edge1, Edge2} ];
-    PositiveEdges = Region[ {Edge1_1, Edge1_2} ];
+    PositiveEdges = Region[ {Edge1_1, Edge1_2, Edge1_3} ];
 
     // Fill the regions for formulation
     MagnAnhyDomain = Region[ {Ferro} ];
@@ -246,6 +249,9 @@ PostOperation {
                     Print[ b, OnElementsOf OmegaCC , File "res/b.pos", Name "b [T]" ];
             EndIf
                 Print[ j, OnElementsOf OmegaC, Format TimeTable, File outputCurrent];
+                Print[ I1, OnRegion Edge1_1, Format TimeTable, File StrCat[outputDirectory,"/current1.txt"] ];
+                Print[ I2, OnRegion Edge1_2, Format TimeTable, File StrCat[outputDirectory,"/current2.txt"] ];
+                Print[ I3, OnRegion Edge1_3, Format TimeTable, File StrCat[outputDirectory,"/current3.txt"] ];
             Print[ b, OnLine{{List[controlPoint1]}{List[controlPoint2]}} {savedPoints},
                 Format TimeTable, File outputMagInduction1];
             Print[ b, OnLine{{List[controlPoint3]}{List[controlPoint4]}} {savedPoints},

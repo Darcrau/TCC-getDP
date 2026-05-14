@@ -391,6 +391,7 @@ PostOperation {
                 Print[ I, OnRegion Edge1_1, Format Table, StoreInVariable $Current ];
                 Print[ I1, OnRegion Edge1_1, Format Table, StoreInVariable $Current1 ];
                 Print[ I2, OnRegion Edge1_2, Format Table, StoreInVariable $Current2 ];
+                Print[ I3, OnRegion Edge1_3, Format Table, StoreInVariable $Current3 ];
             EndIf
         }
     }

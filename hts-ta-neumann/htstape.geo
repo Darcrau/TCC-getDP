@@ -22,7 +22,7 @@ Circle(8) = {8, 100, 2};
 
 
 tapeSpacing = 0.15e-3;
-numTapes = 2; // Número total de tapes (inclui a original)
+numTapes = 3;// Número total de tapes (inclui a original)
 
 // Array para armazenar os IDs das linhas das tapes
 linhasTapes[] = {};
@@ -71,6 +71,10 @@ Physical Point("Left edge 2", EDGE_1_2) = {pontosEsquerda[1]};
 Physical Point("Right edge 1", EDGE_2_1) = {pontosDireita[0]};
 Physical Point("Right edge 2", EDGE_2_2) = {pontosDireita[1]};
 
+
+Physical Line("Conducting domain 3", MATERIAL_3) = {linhasTapes[2]};
+Physical Point("Left edge 3", EDGE_1_3) = {pontosEsquerda[2]};
+Physical Point("Right edge 3", EDGE_2_3) = {pontosDireita[2]};
 
 
 

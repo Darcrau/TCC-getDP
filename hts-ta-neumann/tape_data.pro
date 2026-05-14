@@ -40,3 +40,7 @@ EDGE_1_1 = 3101;
 EDGE_1_2 = 3102;
 EDGE_2_1 = 3201; 
 EDGE_2_2 = 3202;
+// Tags para a Fita 3
+MATERIAL_3 = 3003;
+EDGE_1_3 = 3103; // Borda positiva
+EDGE_2_3 = 3203; // Borda negativa
