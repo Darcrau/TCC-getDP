@@ -20,7 +20,7 @@ Group {
     //      0 -> applied current only
     //      1 -> applied field only
     //      2 -> applied current + applied field (most realistic)
-    SourceType = 0;
+    SourceType = 2;
 
 // ------- WEAK FORMULATION -------
     // Choice of the formulation
