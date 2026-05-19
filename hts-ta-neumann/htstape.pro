@@ -20,7 +20,7 @@ Group {
     //      0 -> applied current only
     //      1 -> applied field only
     //      2 -> applied current + applied field (most realistic)
-    SourceType = 2;
+    SourceType = 0;
 
 // ------- WEAK FORMULATION -------
     // Choice of the formulation
@@ -43,10 +43,11 @@ Group {
         Super1 = Region[ MATERIAL_1 ];
         Super2 = Region[ MATERIAL_2 ];
         Super3 = Region[ MATERIAL_3 ];
-        Super = Region[ {Super1, Super2, Super3} ];
+        Super4 = Region[ MATERIAL_4 ];
+        Super = Region[ {Super1, Super2, Super3, Super4} ];
         
         // 2. Agora o Condutor geral recebe as fitas
-        Cond = Region[ {Super1, Super2, Super3} ];
+        Cond = Region[ {Super1, Super2, Super3, Super4} ];
         
         BndOmegaC += Region[ BND_MATERIAL ];
         BndOmegaC_side += Region[ BND_MATERIAL_SIDE ];
@@ -73,17 +74,19 @@ Group {
     Edge1_1 = Region[ EDGE_1_1 ]; // Borda + da fita 1
     Edge1_2 = Region[ EDGE_1_2 ]; // Borda + da fita 2
     Edge1_3 = Region[ EDGE_1_3 ]; // Borda + da fita 3
+    Edge1_4 = Region[ EDGE_1_4 ]; // Borda + da fita 4
     
     Edge2_1 = Region[ EDGE_2_1 ]; // Borda - da fita 1
     Edge2_2 = Region[ EDGE_2_2 ]; // Borda - da fita 2
     Edge2_3 = Region[ EDGE_2_3 ]; // Borda - da fita 3
+    Edge2_4 = Region[ EDGE_2_4 ]; // Borda - da fita 4
     
     // Agrupamentos lógicos para as equações gerais
-    Edge1 = Region[ {Edge1_1, Edge1_2, Edge1_3} ];
-    Edge2 = Region[ {Edge2_1, Edge2_2, Edge2_3} ];
+    Edge1 = Region[ {Edge1_1, Edge1_2, Edge1_3, Edge1_4} ];
+    Edge2 = Region[ {Edge2_1, Edge2_2, Edge2_3, Edge2_4} ];
     
     LateralEdges = Region[ {Edge1, Edge2} ];
-    PositiveEdges = Region[ {Edge1_1, Edge1_2, Edge1_3} ];
+    PositiveEdges = Region[ {Edge1_1, Edge1_2, Edge1_3, Edge1_4} ];
 
     // Fill the regions for formulation
     MagnAnhyDomain = Region[ {Ferro} ];
@@ -123,7 +126,7 @@ Function{
     DefineConstant [IFraction = {0.9, Name "Input/4Source/0Fraction of max. current intensity (-)"}];
     DefineConstant [Imax = IFraction*jc*W_tape*H_tape]; // Maximum imposed current intensity [A]
     DefineConstant [bmax = 2e2*1e-4];
-    DefineConstant [f = 50]; // Frequency of imposed current intensity [Hz]
+    DefineConstant [f = 60]; // Frequency of imposed current intensity [Hz]
     DefineConstant [timeStart = 0]; // Initial time [s]
     DefineConstant [timeFinal = 1.25/f]; // Final time for source definition [s]
     DefineConstant [timeFinalSimu = 1.25/f]; // Final time of simulation [s]
@@ -230,6 +233,8 @@ PostOperation {
             Print[ time[OmegaC], OnRegion OmegaC, LastTimeStepOnly, Format Table, SendToServer "Output/0Time [s]"] ;
                 Print[ I1, OnRegion Edge1_1, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 1 [A]"] ;
                 Print[ I2, OnRegion Edge1_2, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 2 [A]"] ;
+                Print[ I3, OnRegion Edge1_3, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 3 [A]"] ;
+                Print[ I4, OnRegion Edge1_4, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 4 [A]"] ;
                 Print[ V, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/2Tension [Vm^-1]"] ;
                 Print[ dissPower[OmegaC], OnGlobal, LastTimeStepOnly, Format Table, SendToServer "Output/3Joule loss [W]"] ;
         }
@@ -252,6 +257,7 @@ PostOperation {
                 Print[ I1, OnRegion Edge1_1, Format TimeTable, File StrCat[outputDirectory,"/current1.txt"] ];
                 Print[ I2, OnRegion Edge1_2, Format TimeTable, File StrCat[outputDirectory,"/current2.txt"] ];
                 Print[ I3, OnRegion Edge1_3, Format TimeTable, File StrCat[outputDirectory,"/current3.txt"] ];
+                Print[ I4, OnRegion Edge1_4, Format TimeTable, File StrCat[outputDirectory,"/current4.txt"] ];
             Print[ b, OnLine{{List[controlPoint1]}{List[controlPoint2]}} {savedPoints},
                 Format TimeTable, File outputMagInduction1];
             Print[ b, OnLine{{List[controlPoint3]}{List[controlPoint4]}} {savedPoints},

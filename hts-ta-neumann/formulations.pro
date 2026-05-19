@@ -84,11 +84,14 @@ FunctionSpace {
                 Support Super2; Entity GroupsOfNodesOf[Edge1_2]; }
             { Name psii3; NameOfCoef Ti3; Function BF_GroupOfNodes;
                 Support Super3; Entity GroupsOfNodesOf[Edge1_3]; }
+            { Name psii4; NameOfCoef Ti4; Function BF_GroupOfNodes;
+                Support Super4; Entity GroupsOfNodesOf[Edge1_4]; }
         }
         GlobalQuantity {
             { Name T1 ; Type AliasOf ; NameOfCoef Ti1 ; }
             { Name T2 ; Type AliasOf ; NameOfCoef Ti2 ; }
             { Name T3 ; Type AliasOf ; NameOfCoef Ti3 ; }
+            { Name T4 ; Type AliasOf ; NameOfCoef Ti4 ; }
             { Name V  ; Type AssociatedWith ; NameOfCoef Ti1 ; } // V é comum a ambas
         }
         // Não coloque Constraints aqui para T1, T2 ou V!
@@ -110,6 +113,7 @@ Formulation {
             { Name T1; Type Global; NameOfSpace t_space[T1]; } // Corrente da fita 1
             { Name T2; Type Global; NameOfSpace t_space[T2]; } // Corrente da fita 2
             { Name T3; Type Global; NameOfSpace t_space[T3]; } // Corrente da fita 3
+            { Name T4; Type Global; NameOfSpace t_space[T4]; } // Corrente da fita 4
             { Name V; Type Global; NameOfSpace t_space[V]; }
             If(Dim == 3)
                 { Name a; Type Local; NameOfSpace a_space_3D; }
@@ -164,11 +168,13 @@ Formulation {
             GlobalTerm { [ - $DTime * Dof{V} , {T1} ] ; In Edge1_1 ; }
             GlobalTerm { [ - $DTime * Dof{V} , {T2} ] ; In Edge1_2 ; }
             GlobalTerm { [ - $DTime * Dof{V} , {T3} ] ; In Edge1_3 ; }
-            // 2. Lei dos Nós de Kirchhoff (T1 + T2 = I_total)
+            GlobalTerm { [ - $DTime * Dof{V} , {T4} ] ; In Edge1_4 ; }
+            // 2. Lei dos Nós de Kirchhoff (T1 + T2 + T3 + T4 = I_total)
             // Impõe que a soma das correntes nas fitas seja igual à corrente da fonte I[]
             GlobalTerm { [ Dof{T1} , {V} ] ; In Edge1_1 ; }
             GlobalTerm { [ Dof{T2} , {V} ] ; In Edge1_1 ; }
             GlobalTerm { [ Dof{T3} , {V} ] ; In Edge1_1 ; }
+            GlobalTerm { [ Dof{T4} , {V} ] ; In Edge1_1 ; }
             GlobalTerm { [ -I[] , {V} ] ; In Edge1_1 ; }    
             // ====================================================================
 
@@ -268,13 +274,16 @@ PostProcessing {
             { Name I3; // Corrente na fita 3
                     Value{ Term{ [ {T3} ] ; In Edge1_3;} }
                 }
+            { Name I4; // Corrente na fita 4
+                Value{ Term{ [ {T4} ] ; In Edge1_4;} }
+            }
             { Name I; // Corrente total recuperada para manter a compatibilidade
-                Value{ Term{ [ {T1} + {T2} + {T3} ] ; In Edge1_1;} }
+                Value{ Term{ [ {T1} + {T2} + {T3} + {T4} ] ; In Edge1_1;} }
             }
             { Name dissPowerGlobal;
                 Value{
-                    // Potência total = V * (I1 + I2)
-                    Term{ [ thickness[] * {V}*({T1} + {T2} + {T3}) ] ; In Edge1_1;}
+                    // Potência total = V * (I1 + I2 + I3 + I4)
+                    Term{ [ thickness[] * {V}*({T1} + {T2} + {T3} + {T4}) ] ; In Edge1_1;}
                 }
             }
 

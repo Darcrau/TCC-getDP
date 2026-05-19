@@ -22,7 +22,7 @@ Circle(8) = {8, 100, 2};
 
 
 tapeSpacing = 0.15e-3;
-numTapes = 3;// Número total de tapes (inclui a original)
+numTapes = 4; // Atualizando o número total de fitas
 
 // Array para armazenar os IDs das linhas das tapes
 linhasTapes[] = {};
@@ -48,8 +48,9 @@ For i In {0:numTapes-1}
   pontosDireita[] += {p2};
 EndFor
 
-
-
+Physical Line("Conducting domain 4", MATERIAL_4) = {linhasTapes[3]};
+Physical Point("Left edge 4", EDGE_1_4) = {pontosEsquerda[3]};
+Physical Point("Right edge 4", EDGE_2_4) = {pontosDireita[3]};
 
 Line Loop(30) = {2, 4, 6, 8}; // Outer boundary
 Plane Surface(2) = {30};
@@ -59,7 +60,7 @@ Physical Line("Exterior boundary", SURF_OUT) = {2, 4, 6, 8};
 
 Physical Line("Conducting domain 1", MATERIAL_1) = {linhasTapes[0]};
 Physical Line("Conducting domain 2", MATERIAL_2) = {linhasTapes[1]};
-
+Physical Line("Conducting domain 3", MATERIAL_3) = {linhasTapes[2]};
 
 Physical Line("Conducting domain boundary", BND_MATERIAL) = {linhasTapes[]};
 
@@ -67,16 +68,11 @@ Physical Line("Conducting domain boundary", BND_MATERIAL) = {linhasTapes[]};
 
 Physical Point("Left edge 1", EDGE_1_1) = {pontosEsquerda[0]};
 Physical Point("Left edge 2", EDGE_1_2) = {pontosEsquerda[1]};
+Physical Point("Left edge 3", EDGE_1_3) = {pontosEsquerda[2]};
 
 Physical Point("Right edge 1", EDGE_2_1) = {pontosDireita[0]};
 Physical Point("Right edge 2", EDGE_2_2) = {pontosDireita[1]};
-
-
-Physical Line("Conducting domain 3", MATERIAL_3) = {linhasTapes[2]};
-Physical Point("Left edge 3", EDGE_1_3) = {pontosEsquerda[2]};
 Physical Point("Right edge 3", EDGE_2_3) = {pontosDireita[2]};
-
-
 
 Physical Point("Arbitrary Point", ARBITRARY_POINT) = {2};
 // Empty regions
