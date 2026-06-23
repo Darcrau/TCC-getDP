@@ -124,7 +124,7 @@ Function{
 
     // Excitation
     DefineConstant [IFraction = {0.9, Name "Input/4Source/0Fraction of max. current intensity (-)"}];
-    DefineConstant [Imax = IFraction*jc*W_tape*H_tape]; // Maximum imposed current intensity [A]
+    DefineConstant [Imax = 4*IFraction*jc*W_tape*H_tape]; // Maximum imposed current intensity [A]
     DefineConstant [bmax = 2e2*1e-4];
     DefineConstant [f = 60]; // Frequency of imposed current intensity [Hz]
     DefineConstant [timeStart = 0]; // Initial time [s]
