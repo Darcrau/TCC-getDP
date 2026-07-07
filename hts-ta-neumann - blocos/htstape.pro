@@ -108,12 +108,6 @@ Group {
     Gamma_h = Region[{SurfOut}];
     Gamma_e = Region[{SurfSym}];
     GammaAll = Region[ {Gamma_h, Gamma_e} ];
-    // Defina as regiões que representam os eixos (você deve ter criado essas Physical Lines no .geo)
-SYMM_X = Region[ {SYMM_X} ]; // Física da linha do eixo X
-SYMM_Y = Region[ {SYMM_Y} ]; // Física da linha do eixo Y
-
-
-
 }
 
 
@@ -176,18 +170,14 @@ Function{
 Constraint {
     { Name a ;
         Case {
+            {Region SurfSym ; Value 0.0;}
             If(SourceType == 0)
                 {Region SurfOut ; Value 0.0;}
-                {Region SurfSym ; Value 0.0;}
             ElseIf(SourceType == 1)
                 {Region SurfOut ; Value -X[] * mu0 ; TimeFunction hsVal[] ;}
             ElseIf(SourceType == 2)
                 {Region SurfOut ; Value -X[] * mu0 ; TimeFunction hsVal[] ;}
             EndIf
-
-            // --- AQUI VOCÊ ADICIONA A DIRICHLET PARA FECHAR O QUADRANTE ---
-            {Region SYMM_X ; Value 0.0;} 
-            {Region SYMM_Y ; Value 0.0;}
         }
     }
     { Name a2 ;

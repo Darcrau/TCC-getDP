@@ -12,7 +12,7 @@ For b In {0 : #Lista_X[]-1}
   dist_bloco = Sqrt(Lista_X[b]^2 + Lista_Y[b]^2) + dist_canto;
   If(dist_bloco > R_max) R_max = dist_bloco; EndIf
 EndFor
-R_inf = R_max * 1.2; 
+R_inf = R_max * 2; 
 
 // ====================================================================
 // 2. GEOMETRIA BASE
@@ -38,10 +38,10 @@ pontosDireita[] = {};
 // MACRO
 // ====================================================================
 Macro CriarBloco
-  p_b1 = newp; Point(p_b1) = {X_c - W_block/2, Y_c - H_block/2, 0, LcInf};
-  p_b2 = newp; Point(p_b2) = {X_c + W_block/2, Y_c - H_block/2, 0, LcInf};
-  p_b3 = newp; Point(p_b3) = {X_c + W_block/2, Y_c + H_block/2, 0, LcInf};
-  p_b4 = newp; Point(p_b4) = {X_c - W_block/2, Y_c + H_block/2, 0, LcInf};
+  p_b1 = newp; Point(p_b1) = {X_c - W_block/2, Y_c - H_block/2, 0, LcTape*3};
+  p_b2 = newp; Point(p_b2) = {X_c + W_block/2, Y_c - H_block/2, 0, LcTape*3};
+  p_b3 = newp; Point(p_b3) = {X_c + W_block/2, Y_c + H_block/2, 0, LcTape*3};
+  p_b4 = newp; Point(p_b4) = {X_c - W_block/2, Y_c + H_block/2, 0, LcTape*3};
   Line(newl) = {p_b1, p_b2}; Line(newl) = {p_b2, p_b3};
   Line(newl) = {p_b3, p_b4}; Line(newl) = {p_b4, p_b1};
 
@@ -65,7 +65,7 @@ For b In {0 : #Lista_X[]-1}
 EndFor
 
 // ====================================================================
-// ORGANIZAÇÃO DOS GRUPOS (Substitui o slicing inválido)
+// ORGANIZAÇÃO DOS GRUPOS
 // ====================================================================
 Mat1[] = {}; Mat2[] = {}; Mat3[] = {}; Mat4[] = {};
 E1_1[] = {}; E1_2[] = {}; E1_3[] = {}; E1_4[] = {};
@@ -82,19 +82,18 @@ EndFor
 // ====================================================================
 // GEOMETRIA GLOBAL E FÍSICA
 // ====================================================================
-Line Loop(30) = {2, 4, 6, 8};
-// Linhas Dirichlet (use newl para evitar erro de tag)
-l_sx = newl; Line(l_sx) = {100, 8}; // Eixo X positivo
-l_sy = newl; Line(l_sy) = {100, 6}; // Eixo Y positivo
-// Nota: Defina SYMM_X e SYMM_Y em tape_data.pro se ainda não estiverem lá
+l_sx = newl; Line(l_sx) = {100, 8};
+l_sy = newl; Line(l_sy) = {100, 6};
+Line Loop(30) = {l_sy, 6, -l_sx};
 Physical Line("SYMM_X", 13001) = {l_sx};
 Physical Line("SYMM_Y", 13002) = {l_sy};
+Physical Line("Symmetry", SURF_SYM) = {l_sx, l_sy};
 
 Plane Surface(2) = {30};
 Curve{linhasTapes[]} In Surface{2};
 
 Physical Surface("Air", AIR) = {2};
-Physical Line("Exterior boundary", SURF_OUT) = {2, 4, 6, 8};
+Physical Line("Exterior boundary", SURF_OUT) = {6};
 
 Physical Line("Conducting domain 1", MATERIAL_1) = {Mat1[]};
 Physical Line("Conducting domain 2", MATERIAL_2) = {Mat2[]};
@@ -114,3 +113,31 @@ Physical Point("Right edge 4", EDGE_2_4) = {E2_4[]};
 
 Hide { Point{ Point '*' }; }
 Cohomology(1) {{AIR}, {}};
+
+// ====================================================================
+// CONTROLE DE MALHA — CRESCIMENTO PROGRESSIVO (growth rate)
+// ====================================================================
+Mesh.Algorithm = 6;
+Mesh.CharacteristicLengthFromPoints = 0;
+Mesh.CharacteristicLengthExtendFromBoundary = 0;
+Mesh.CharacteristicLengthMin = LcTape * 0.5;
+Mesh.CharacteristicLengthMax = LcInf;
+Mesh.Smoothing = 20;
+
+// --- Distância até as fitas (fonte do crescimento) ---
+Field[1] = Distance;
+Field[1].CurvesList = {linhasTapes[]};
+Field[1].NumPointsPerCurve = 30;
+
+// --- Crescimento LINEAR controlado: Lc = LcTape + taxa * distancia ---
+// growthRate ~ 0.15 a 0.30 = malha cresce 15-30% do tamanho por unidade
+// de distancia percorrida. Valores menores = crescimento mais suave/lento.
+growthRate = 0.2;
+Field[2] = MathEval;
+Field[2].F = Sprintf("%g + %g*F1", LcTape, growthRate);
+
+// --- Trava o crescimento no valor maximo global (LcInf) ---
+Field[3] = Min;
+Field[3].FieldsList = {2};
+
+Background Field = 3;
