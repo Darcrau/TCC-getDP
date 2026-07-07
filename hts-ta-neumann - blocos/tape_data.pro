@@ -1,6 +1,6 @@
 // ---- Geometry parameters ----
 DefineConstant[
-R_inf = {0.06, Name "Input/1Geometry/Outer radius (m)", Closed 1}, // Outer shell radius [m]
+R_inf = {0.08, Name "Input/1Geometry/Outer radius (m)", Closed 1}, // Outer shell radius [m]
 R_air = {0.04, Max R_inf, Name "Input/1Geometry/Inner radius (m)"}, // Inner shell radius [m]
 W_tape = {4e-3, Max R_air/2, Name "Input/1Geometry/Cylinder diameter (m)"}, // Width of the tape [m]
 H_tape = {1e-6, Max R_air/2, Name "Input/1Geometry/Bottom cylinder height (m)"}, // Height of the tape [m]
