@@ -1,10 +1,10 @@
 Include "tape_data.pro";
 Include "commonInformation.pro";
 
-
 Group {
     // Output choice
     DefineConstant[onelabInterface = {0, Choices{0,1}, Name "Input/3Problem/2Show solution during simulation?"}]; // Set to 0 for launching in terminal (faster)
+    DefineConstant[economPos = 1];
     realTimeInfo = onelabInterface;
     realTimeSolution = onelabInterface;
     // ------- PROBLEM DEFINITION -------
@@ -44,14 +44,11 @@ Group {
         Super2 = Region[ MATERIAL_2 ];
         Super3 = Region[ MATERIAL_3 ];
         Super4 = Region[ MATERIAL_4 ];
-        Super5 = Region[ MATERIAL_5 ];
-        Super6 = Region[ MATERIAL_6 ];
-        Super7 = Region[ MATERIAL_7 ];
-        Super8 = Region[ MATERIAL_8 ];
-        Super = Region[ {Super1, Super2, Super3, Super4, Super5, Super6, Super7, Super8} ];
+
+        Super = Region[ {Super1, Super2, Super3, Super4} ];
         
         // 2. Agora o Condutor geral recebe as fitas
-        Cond = Region[ {Super1, Super2, Super3, Super4, Super5, Super6, Super7, Super8} ];
+        Cond = Region[ {Super1, Super2, Super3, Super4} ];
         
         BndOmegaC += Region[ BND_MATERIAL ];
         BndOmegaC_side += Region[ BND_MATERIAL_SIDE ];
@@ -79,28 +76,21 @@ Group {
     Edge1_2 = Region[ EDGE_1_2 ]; // Borda + da fita 2
     Edge1_3 = Region[ EDGE_1_3 ]; // Borda + da fita 3
     Edge1_4 = Region[ EDGE_1_4 ]; // Borda + da fita 4
-    Edge1_5 = Region[ EDGE_1_5 ]; // Borda + da fita 5
-    Edge1_6 = Region[ EDGE_1_6 ]; // Borda + da fita 6
-    Edge1_7 = Region[ EDGE_1_7 ]; // Borda + da fita 7
-    Edge1_8 = Region[ EDGE_1_8 ]; // Borda + da fita 8
 
     Edge2_1 = Region[ EDGE_2_1 ]; // Borda - da fita 1
     Edge2_2 = Region[ EDGE_2_2 ]; // Borda - da fita 2
     Edge2_3 = Region[ EDGE_2_3 ]; // Borda - da fita 3
     Edge2_4 = Region[ EDGE_2_4 ]; // Borda - da fita 4
-    Edge2_5 = Region[ EDGE_2_5 ]; // Borda - da fita 5
-    Edge2_6 = Region[ EDGE_2_6 ]; // Borda - da fita 6
-    Edge2_7 = Region[ EDGE_2_7 ]; // Borda - da fita 7
-    Edge2_8 = Region[ EDGE_2_8 ]; // Borda - da fita 8
+
 
 
     
     // Agrupamentos lógicos para as equações gerais
-    Edge1 = Region[ {Edge1_1, Edge1_2, Edge1_3, Edge1_4, Edge1_5, Edge1_6, Edge1_7, Edge1_8} ];
-    Edge2 = Region[ {Edge2_1, Edge2_2, Edge2_3, Edge2_4, Edge2_5, Edge2_6, Edge2_7, Edge2_8} ];
+    Edge1 = Region[ {Edge1_1, Edge1_2, Edge1_3, Edge1_4} ];
+    Edge2 = Region[ {Edge2_1, Edge2_2, Edge2_3, Edge2_4} ];
     
     LateralEdges = Region[ {Edge1, Edge2} ];
-    PositiveEdges = Region[ {Edge1_1, Edge1_2, Edge1_3, Edge1_4, Edge1_5, Edge1_6, Edge1_7, Edge1_8} ];
+    PositiveEdges = Region[ {Edge1_1, Edge1_2, Edge1_3, Edge1_4} ];
 
     // Fill the regions for formulation
     MagnAnhyDomain = Region[ {Ferro} ];
@@ -249,10 +239,7 @@ PostOperation {
                 Print[ I2, OnRegion Edge1_2, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 2 [A]"] ;
                 Print[ I3, OnRegion Edge1_3, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 3 [A]"] ;
                 Print[ I4, OnRegion Edge1_4, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 4 [A]"] ;
-                Print[ I5, OnRegion Edge1_5, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 5 [A]"] ;
-                Print[ I6, OnRegion Edge1_6, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 6 [A]"] ;
-                Print[ I7, OnRegion Edge1_7, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 7 [A]"] ;
-                Print[ I8, OnRegion Edge1_8, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 8 [A]"] ;
+
                 Print[ V, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/2Tension [Vm^-1]"] ;
                 Print[ dissPower[OmegaC], OnGlobal, LastTimeStepOnly, Format Table, SendToServer "Output/3Joule loss [W]"] ;
         }
@@ -276,10 +263,6 @@ PostOperation {
                 Print[ I2, OnRegion Edge1_2, Format TimeTable, File StrCat[outputDirectory,"/current2.txt"] ];
                 Print[ I3, OnRegion Edge1_3, Format TimeTable, File StrCat[outputDirectory,"/current3.txt"] ];
                 Print[ I4, OnRegion Edge1_4, Format TimeTable, File StrCat[outputDirectory,"/current4.txt"] ];
-                Print[ I5, OnRegion Edge1_5, Format TimeTable, File StrCat[outputDirectory,"/current5.txt"] ];
-                Print[ I6, OnRegion Edge1_6, Format TimeTable, File StrCat[outputDirectory,"/current6.txt"] ];
-                Print[ I7, OnRegion Edge1_7, Format TimeTable, File StrCat[outputDirectory,"/current7.txt"] ];
-                Print[ I8, OnRegion Edge1_8, Format TimeTable, File StrCat[outputDirectory,"/current8.txt"] ];
             Print[ b, OnLine{{List[controlPoint1]}{List[controlPoint2]}} {savedPoints},
                 Format TimeTable, File outputMagInduction1];
             Print[ b, OnLine{{List[controlPoint3]}{List[controlPoint4]}} {savedPoints},

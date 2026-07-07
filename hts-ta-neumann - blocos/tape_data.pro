@@ -2,7 +2,7 @@
 DefineConstant[
 R_inf = {0.06, Name "Input/1Geometry/Outer radius (m)", Closed 1}, // Outer shell radius [m]
 R_air = {0.04, Max R_inf, Name "Input/1Geometry/Inner radius (m)"}, // Inner shell radius [m]
-W_tape = {12e-3, Max R_air/2, Name "Input/1Geometry/Cylinder diameter (m)"}, // Width of the tape [m]
+W_tape = {4e-3, Max R_air/2, Name "Input/1Geometry/Cylinder diameter (m)"}, // Width of the tape [m]
 H_tape = {1e-6, Max R_air/2, Name "Input/1Geometry/Bottom cylinder height (m)"}, // Height of the tape [m]
 meshLayerWidthTape = {0.001} // Width of the control mesh layer around the cylinder
 ];
@@ -49,22 +49,6 @@ MATERIAL_4 = 3004;
 EDGE_1_4 = 3104; // Borda positiva
 EDGE_2_4 = 3204; // Borda negativa
 
-// Tags para a Fita 5
-MATERIAL_5 = 3005;
-EDGE_1_5 = 3105; // Borda positiva
-EDGE_2_5 = 3205; // Borda negativa
 
-// Tags para a Fita 6
-MATERIAL_6 = 3006;
-EDGE_1_6 = 3106; // Borda positiva
-EDGE_2_6 = 3206; // Borda negativa
 
-// Tags para a Fita 7
-MATERIAL_7 = 3007;
-EDGE_1_7 = 3107; // Borda positiva
-EDGE_2_7 = 3207; // Borda negativa
 
-// Tags para a Fita 8
-MATERIAL_8 = 3008;
-EDGE_1_8 = 3108; // Borda positiva
-EDGE_2_8 = 3208; // Borda negativa
