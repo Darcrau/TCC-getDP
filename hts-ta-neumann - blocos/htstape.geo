@@ -2,8 +2,6 @@ Include "tape_data.pro";
 
 R = W_tape/2; // Radius
 
-
-
 DefineConstant [LcTape = 2*R/numElementsTape]; // Mesh size in cylinder [m]
 DefineConstant [LcLayer = LcTape*2]; // Mesh size in the region close to the cylinder [m]
 DefineConstant [LcAir = meshMult*0.001*3]; // Mesh size in air shell [m]
@@ -20,9 +18,8 @@ Circle(4) = {4, 100, 6};
 Circle(6) = {6, 100, 8};
 Circle(8) = {8, 100, 2};
 
-
-tapeSpacing = 0.15e-3;
 numTapes = 8; // Atualizando o número total de fitas
+tapeSpacing = 0.15e-3; // ESPAÇAMENTO FIXO RESTAURADO
 
 // Array para armazenar os IDs das linhas das tapes
 linhasTapes[] = {};
@@ -32,9 +29,9 @@ offset = 200; // Offset para os IDs das linhas das tapes (para evitar conflitos 
 pontosEsquerda[] = {};
 pontosDireita[] = {};
 
-
-
-
+/* ====================================================================
+   MODELO DE DISTÂNCIAS VARIÁVEIS (COMENTADO PARA USO FUTURO)
+   Para usar, remova os comentários e comente o "yOffset" dentro do For.
 yOffsets[] = {
   0.0,        // Tape 1: 0
   20e-6,      // Tape 2: 20 um
@@ -45,11 +42,14 @@ yOffsets[] = {
   330e-6,     // Tape 7: Tape 6 + 40 um
   350e-6      // Tape 8: Tape 7 + 20 um
 };
+==================================================================== */
 
 For i In {0:numTapes-1}
   
-  // 2. Esta linha puxa o valor da lista para a iteração atual
-  yOffset = yOffsets[i]; 
+  // Utiliza o espaçamento fixo entre as fitas
+  yOffset = i * tapeSpacing; 
+  
+  // yOffset = yOffsets[i]; // (Comentado: puxava da lista)
   
   p1 = offset + i*2;
   p2 = offset+1 + i*2;
@@ -85,8 +85,6 @@ Physical Line("Conducting domain 8", MATERIAL_8) = {linhasTapes[7]};
 
 Physical Line("Conducting domain boundary", BND_MATERIAL) = {linhasTapes[]};
 
-
-
 Physical Point("Left edge 1", EDGE_1_1) = {pontosEsquerda[0]};
 Physical Point("Left edge 2", EDGE_1_2) = {pontosEsquerda[1]};
 Physical Point("Left edge 3", EDGE_1_3) = {pontosEsquerda[2]};
@@ -113,11 +111,9 @@ Physical Line("Cut", CUT) = {};
 Physical Line("Positive side of bnds", BND_MATERIAL_SIDE) = {};
 Color Blue {Surface{2};}
 
-
 Hide { Point{ Point '*' }; }
 
 Cohomology(1) {{AIR}, {}};
-
 
 // ====================================================================
 // CONTROLE DE MALHA AVANÇADO (FIELDS) - CORRIGIDO PARA O AR
