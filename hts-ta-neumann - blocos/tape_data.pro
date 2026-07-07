@@ -51,4 +51,6 @@ EDGE_2_4 = 3204; // Borda negativa
 
 
 
-
+// Tags para condições de contorno (Dirichlet)
+SYMM_X = 13001;
+SYMM_Y = 13002;

@@ -1,8 +1,7 @@
 Include "tape_data.pro";
 
 // ====================================================================
-// 1. CÁLCULO DINÂMICO DO RAIO DE AR (R_inf)
-// O círculo de ar precisa envolver todos os blocos definidos em coordenadas.geo
+// 1. CÁLCULO DINÂMICO DO RAIO DE AR
 // ====================================================================
 Include "coordenadas.geo"; 
 W_block = 4e-3; H_block = 1050e-6;
@@ -13,7 +12,7 @@ For b In {0 : #Lista_X[]-1}
   dist_bloco = Sqrt(Lista_X[b]^2 + Lista_Y[b]^2) + dist_canto;
   If(dist_bloco > R_max) R_max = dist_bloco; EndIf
 EndFor
-R_inf = R_max * 1.2; // Margem de segurança de 20%
+R_inf = R_max * 1.2; 
 
 // ====================================================================
 // 2. GEOMETRIA BASE
@@ -36,10 +35,9 @@ pontosEsquerda[] = {};
 pontosDireita[] = {};
 
 // ====================================================================
-// MACRO: CRIAR BLOCO EM (X_c, Y_c)
+// MACRO
 // ====================================================================
 Macro CriarBloco
-  // Desenha Retângulo Visual (Sem Physical Group)
   p_b1 = newp; Point(p_b1) = {X_c - W_block/2, Y_c - H_block/2, 0, LcInf};
   p_b2 = newp; Point(p_b2) = {X_c + W_block/2, Y_c - H_block/2, 0, LcInf};
   p_b3 = newp; Point(p_b3) = {X_c + W_block/2, Y_c + H_block/2, 0, LcInf};
@@ -47,7 +45,6 @@ Macro CriarBloco
   Line(newl) = {p_b1, p_b2}; Line(newl) = {p_b2, p_b3};
   Line(newl) = {p_b3, p_b4}; Line(newl) = {p_b4, p_b1};
 
-  // Desenha 4 Fitas
   For i In {0:3}
     yOffset = Y_c + yOffsets[i]; 
     p1 = newp; Point(p1) = {X_c - R, yOffset, 0, LcTape};
@@ -60,9 +57,7 @@ Macro CriarBloco
   EndFor
 Return
 
-// ====================================================================
-// GERAÇÃO EM MASSA
-// ====================================================================
+// Geração
 For b In {0 : #Lista_X[]-1}
   X_c = Lista_X[b];
   Y_c = Lista_Y[b];
@@ -70,33 +65,52 @@ For b In {0 : #Lista_X[]-1}
 EndFor
 
 // ====================================================================
+// ORGANIZAÇÃO DOS GRUPOS (Substitui o slicing inválido)
+// ====================================================================
+Mat1[] = {}; Mat2[] = {}; Mat3[] = {}; Mat4[] = {};
+E1_1[] = {}; E1_2[] = {}; E1_3[] = {}; E1_4[] = {};
+E2_1[] = {}; E2_2[] = {}; E2_3[] = {}; E2_4[] = {};
+
+For k In {0 : #linhasTapes[]-1}
+  mod = k % 4;
+  If(mod == 0) Mat1[] += {linhasTapes[k]}; E1_1[] += {pontosEsquerda[k]}; E2_1[] += {pontosDireita[k]}; EndIf
+  If(mod == 1) Mat2[] += {linhasTapes[k]}; E1_2[] += {pontosEsquerda[k]}; E2_2[] += {pontosDireita[k]}; EndIf
+  If(mod == 2) Mat3[] += {linhasTapes[k]}; E1_3[] += {pontosEsquerda[k]}; E2_3[] += {pontosDireita[k]}; EndIf
+  If(mod == 3) Mat4[] += {linhasTapes[k]}; E1_4[] += {pontosEsquerda[k]}; E2_4[] += {pontosDireita[k]}; EndIf
+EndFor
+
+// ====================================================================
 // GEOMETRIA GLOBAL E FÍSICA
 // ====================================================================
 Line Loop(30) = {2, 4, 6, 8};
+// Linhas Dirichlet (use newl para evitar erro de tag)
+l_sx = newl; Line(l_sx) = {100, 8}; // Eixo X positivo
+l_sy = newl; Line(l_sy) = {100, 6}; // Eixo Y positivo
+// Nota: Defina SYMM_X e SYMM_Y em tape_data.pro se ainda não estiverem lá
+Physical Line("SYMM_X", 13001) = {l_sx};
+Physical Line("SYMM_Y", 13002) = {l_sy};
+
 Plane Surface(2) = {30};
 Curve{linhasTapes[]} In Surface{2};
 
 Physical Surface("Air", AIR) = {2};
 Physical Line("Exterior boundary", SURF_OUT) = {2, 4, 6, 8};
 
-// Agrupamento Automático por tipo de fita
-Physical Line("Conducting domain 1", MATERIAL_1) = {linhasTapes[0 : #linhasTapes[]-1 : 4]};
-Physical Line("Conducting domain 2", MATERIAL_2) = {linhasTapes[1 : #linhasTapes[]-1 : 4]};
-Physical Line("Conducting domain 3", MATERIAL_3) = {linhasTapes[2 : #linhasTapes[]-1 : 4]};
-Physical Line("Conducting domain 4", MATERIAL_4) = {linhasTapes[3 : #linhasTapes[]-1 : 4]};
-
+Physical Line("Conducting domain 1", MATERIAL_1) = {Mat1[]};
+Physical Line("Conducting domain 2", MATERIAL_2) = {Mat2[]};
+Physical Line("Conducting domain 3", MATERIAL_3) = {Mat3[]};
+Physical Line("Conducting domain 4", MATERIAL_4) = {Mat4[]};
 Physical Line("Conducting domain boundary", BND_MATERIAL) = {linhasTapes[]};
 
-// Agrupamento das bordas para o circuito
-Physical Point("Left edge 1", EDGE_1_1) = {pontosEsquerda[0 : #pontosEsquerda[]-1 : 4]};
-Physical Point("Left edge 2", EDGE_1_2) = {pontosEsquerda[1 : #pontosEsquerda[]-1 : 4]};
-Physical Point("Left edge 3", EDGE_1_3) = {pontosEsquerda[2 : #pontosEsquerda[]-1 : 4]};
-Physical Point("Left edge 4", EDGE_1_4) = {pontosEsquerda[3 : #pontosEsquerda[]-1 : 4]};
+Physical Point("Left edge 1", EDGE_1_1) = {E1_1[]};
+Physical Point("Left edge 2", EDGE_1_2) = {E1_2[]};
+Physical Point("Left edge 3", EDGE_1_3) = {E1_3[]};
+Physical Point("Left edge 4", EDGE_1_4) = {E1_4[]};
 
-Physical Point("Right edge 1", EDGE_2_1) = {pontosDireita[0 : #pontosDireita[]-1 : 4]};
-Physical Point("Right edge 2", EDGE_2_2) = {pontosDireita[1] : #pontosDireita[]-1 : 4};
-Physical Point("Right edge 3", EDGE_2_3) = {pontosDireita[2] : #pontosDireita[]-1 : 4};
-Physical Point("Right edge 4", EDGE_2_4) = {pontosDireita[3] : #pontosDireita[]-1 : 4};
+Physical Point("Right edge 1", EDGE_2_1) = {E2_1[]};
+Physical Point("Right edge 2", EDGE_2_2) = {E2_2[]};
+Physical Point("Right edge 3", EDGE_2_3) = {E2_3[]};
+Physical Point("Right edge 4", EDGE_2_4) = {E2_4[]};
 
 Hide { Point{ Point '*' }; }
 Cohomology(1) {{AIR}, {}};
