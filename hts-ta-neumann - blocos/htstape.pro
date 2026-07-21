@@ -37,18 +37,31 @@ Group {
     
     If(MaterialType == 0)
         Air += Region[ {MATERIAL_1, MATERIAL_2} ];
-    ElseIf(MaterialType == 1 || MaterialType == 2)
+ElseIf(MaterialType == 1 || MaterialType == 2)
         
-        // 1. Definimos as fitas independentes primeiro
-        Super1 = Region[ MATERIAL_1 ];
-        Super2 = Region[ MATERIAL_2 ];
-        Super3 = Region[ MATERIAL_3 ];
-        Super4 = Region[ MATERIAL_4 ];
+        // 1. Inicializa os agrupamentos globais vazios
+        Super = Region[ {} ];
+        Cond = Region[ {} ];
+        Edge1 = Region[ {} ];
+        Edge2 = Region[ {} ];
+        PositiveEdges = Region[ {} ];
 
-        Super = Region[ {Super1, Super2, Super3, Super4} ];
+        // 2. Cria as 144 fitas e bordas dinamicamente e já as acumula
+        For i In {1:144}
+            Super~i  = Region[ 10000 + i ];
+            Edge1_~i = Region[ 20000 + i ];
+            Edge2_~i = Region[ 30000 + i ];
+
+            // Adiciona as fitas individuais aos grupos gerais
+            Super += Region[ Super~i ];
+            Cond  += Region[ Super~i ];
+            Edge1 += Region[ Edge1_~i ];
+            Edge2 += Region[ Edge2_~i ];
+            PositiveEdges += Region[ Edge1_~i ];
+        EndFor
         
-        // 2. Agora o Condutor geral recebe as fitas
-        Cond = Region[ {Super1, Super2, Super3, Super4} ];
+        // 3. Define as bordas laterais conjuntas
+        LateralEdges = Region[ {Edge1, Edge2} ];
         
         BndOmegaC += Region[ BND_MATERIAL ];
         BndOmegaC_side += Region[ BND_MATERIAL_SIDE ];
@@ -63,34 +76,17 @@ Group {
             // Super já foi montado acima, apenas ativamos a flag
             IsThereSuper = 1;
         ElseIf(MaterialType == 2)
-            Copper += Region[ {MATERIAL_1, MATERIAL_2} ];
+            // Se for simular como cobre, atribui todas as 144 fitas
+            Copper += Region[ {Super} ];
         EndIf
         
     ElseIf(MaterialType == 3)
-        Ferro += Region[ {MATERIAL_1, MATERIAL_2} ];
+        // Se for simular como ferro
+        Ferro += Region[ {Super} ]; 
         IsThereFerro = 1;
-    EndIf
-
-    // Edges of the tape: Separando fisicamente para permitir correntes diferentes
-    Edge1_1 = Region[ EDGE_1_1 ]; // Borda + da fita 1
-    Edge1_2 = Region[ EDGE_1_2 ]; // Borda + da fita 2
-    Edge1_3 = Region[ EDGE_1_3 ]; // Borda + da fita 3
-    Edge1_4 = Region[ EDGE_1_4 ]; // Borda + da fita 4
-
-    Edge2_1 = Region[ EDGE_2_1 ]; // Borda - da fita 1
-    Edge2_2 = Region[ EDGE_2_2 ]; // Borda - da fita 2
-    Edge2_3 = Region[ EDGE_2_3 ]; // Borda - da fita 3
-    Edge2_4 = Region[ EDGE_2_4 ]; // Borda - da fita 4
-
-
-
+    EndIf        
     
-    // Agrupamentos lógicos para as equações gerais
-    Edge1 = Region[ {Edge1_1, Edge1_2, Edge1_3, Edge1_4} ];
-    Edge2 = Region[ {Edge2_1, Edge2_2, Edge2_3, Edge2_4} ];
-    
-    LateralEdges = Region[ {Edge1, Edge2} ];
-    PositiveEdges = Region[ {Edge1_1, Edge1_2, Edge1_3, Edge1_4} ];
+
 
     // Fill the regions for formulation
     MagnAnhyDomain = Region[ {Ferro} ];
@@ -125,7 +121,7 @@ Function{
 
     // Excitation
     DefineConstant [IFraction = {0.9, Name "Input/4Source/0Fraction of max. current intensity (-)"}];
-    DefineConstant [Imax = 8*IFraction*jc*W_tape*H_tape]; // Maximum imposed current intensity [A]
+    DefineConstant [Imax = 7000]; // Maximum imposed current intensity [A]
     DefineConstant [bmax = 2e2*1e-4];
     DefineConstant [f = 60]; // Frequency of imposed current intensity [Hz]
     DefineConstant [timeStart = 0]; // Initial time [s]
@@ -299,30 +295,22 @@ FunctionSpace {
     //
     // NB: psi_i makes sense as a "global function" only in 3D. In 2D, this is simply one nodal function
     //      at the positive edge of the tape, but with the syntax below, all situations are treated the same way.
-    { Name t_space; Type Form0;
+{ Name t_space; Type Form0;
         BasisFunction {
-            { Name psin; NameOfCoef tn; Function BF_Node;
-                Support Super; Entity NodesOf[All, Not LateralEdges]; }
-            // Coeficientes independentes para cada fita
-            { Name psii1; NameOfCoef Ti1; Function BF_GroupOfNodes;
-                Support Super1; Entity GroupsOfNodesOf[Edge1_1]; }
-            { Name psii2; NameOfCoef Ti2; Function BF_GroupOfNodes;
-                Support Super2; Entity GroupsOfNodesOf[Edge1_2]; }
-            { Name psii3; NameOfCoef Ti3; Function BF_GroupOfNodes;
-                Support Super3; Entity GroupsOfNodesOf[Edge1_3]; }
-            { Name psii4; NameOfCoef Ti4; Function BF_GroupOfNodes;
-                Support Super4; Entity GroupsOfNodesOf[Edge1_4]; }
-       
+            { Name psin; NameOfCoef tn; Function BF_Node; Support Super; Entity NodesOf[All, Not LateralEdges]; }
+            
+            // Declaração automática das 144 funções de base modais
+            For i In {1:144}
+                { Name psii~i; NameOfCoef Ti~i; Function BF_GroupOfNodes; Support Super~i; Entity GroupsOfNodesOf[Edge1_~i]; }
+            EndFor
         }
         GlobalQuantity {
-            { Name T1 ; Type AliasOf ; NameOfCoef Ti1 ; }
-            { Name T2 ; Type AliasOf ; NameOfCoef Ti2 ; }
-            { Name T3 ; Type AliasOf ; NameOfCoef Ti3 ; }
-            { Name T4 ; Type AliasOf ; NameOfCoef Ti4 ; }
-            { Name V  ; Type AssociatedWith ; NameOfCoef Ti1 ; } // V é comum a ambas
+            For i In {1:144}
+                { Name T~i ; Type AliasOf ; NameOfCoef Ti~i ; }
+            EndFor
+            { Name V  ; Type AssociatedWith ; NameOfCoef Ti1 ; }
         }
-        // Não coloque Constraints aqui para T1, T2 ou V!
-        }
+    }
     }
 
 // ----------------------------------------------------------------------------
@@ -337,12 +325,14 @@ Formulation {
     { Name MagDyn_ta; Type FemEquation;
         Quantity {
             { Name t; Type Local; NameOfSpace t_space; }
-            { Name T1; Type Global; NameOfSpace t_space[T1]; } // Corrente da fita 1
-            { Name T2; Type Global; NameOfSpace t_space[T2]; } // Corrente da fita 2
-            { Name T3; Type Global; NameOfSpace t_space[T3]; } // Corrente da fita 3
-            { Name T4; Type Global; NameOfSpace t_space[T4]; } // Corrente da fita 4
+            
+            // Mapeia os 144 potenciais globais de corrente como incógnitas
+            For i In {1:144}
+                { Name T~i; Type Global; NameOfSpace t_space[T~i]; }
+            EndFor
 
             { Name V; Type Global; NameOfSpace t_space[V]; }
+
             If(Dim == 3)
                 { Name a; Type Local; NameOfSpace a_space_3D; }
             Else
@@ -389,23 +379,21 @@ Formulation {
             Galerkin { [ - Dof{d t} /\ Normal[] , {a}]; // Dof{d t} /\ Normal[] is the current density!
                 In BndOmega_ha; Integration Int; Jacobian Sur; }
 
+// ====================================================================
+            // MODELO DE CIRCUITO ACOPLADO (144 FITAS EM PARALELO GLOBAL)
             // ====================================================================
-            // MODELO DE CIRCUITO (DUAS FITAS EM PARALELO)
-            // ====================================================================
-            // 1. Acoplamento de Faraday (A tensão V dita a dinâmica em cada fita)
-            GlobalTerm { [ - $DTime * Dof{V} , {T1} ] ; In Edge1_1 ; }
-            GlobalTerm { [ - $DTime * Dof{V} , {T2} ] ; In Edge1_2 ; }
-            GlobalTerm { [ - $DTime * Dof{V} , {T3} ] ; In Edge1_3 ; }
-            GlobalTerm { [ - $DTime * Dof{V} , {T4} ] ; In Edge1_4 ; }
+            // 1. Acoplamento de Faraday: A queda de tensão V governa o avanço temporal de cada fita
+            For i In {1:144}
+                GlobalTerm { [ - $DTime * Dof{V} , {T~i} ] ; In Edge1_~i ; }
+            EndFor
 
-            // 2. Lei dos Nós de Kirchhoff (T1 + T2 + T3 + T4 = I_total)
-            // Impõe que a soma das correntes nas fitas seja igual à corrente da fonte I[]
-            GlobalTerm { [ Dof{T1} , {V} ] ; In Edge1_1 ; }
-            GlobalTerm { [ Dof{T2} , {V} ] ; In Edge1_1 ; }
-            GlobalTerm { [ Dof{T3} , {V} ] ; In Edge1_1 ; }
-            GlobalTerm { [ Dof{T4} , {V} ] ; In Edge1_1 ; }
+            // 2. Lei de Kirchhoff das Correntes (KCL): A soma das 144 correntes é igual à fonte transiente
+            For i In {1:144}
+                GlobalTerm { [ Dof{T~i} , {V} ] ; In Edge1_~i ; }
+            EndFor
 
             GlobalTerm { [ -I[] , {V} ] ; In Edge1_1 ; }    
+            // ====================================================================
             // ====================================================================
 
             If(Dim == 3)
@@ -495,27 +483,13 @@ PostProcessing {
             { Name V;
                 Value{ Term{ [ {V} ] ; In PositiveEdges;} }
             }
-            { Name I1; // Corrente na fita 1
-                Value{ Term{ [ {T1} ] ; In Edge1_1;} }
-            }
-            { Name I2; // Corrente na fita 2
-                Value{ Term{ [ {T2} ] ; In Edge1_2;} }
-            }
-            { Name I3; // Corrente na fita 3
-                Value{ Term{ [ {T3} ] ; In Edge1_3;} }
-                }
-            { Name I4; // Corrente na fita 4
-                Value{ Term{ [ {T4} ] ; In Edge1_4;} }
-
-            }
-
-            { Name I; // Corrente total recuperada para manter a compatibilidade
-                Value{ Term{ [ {T1} + {T2} + {T3} + {T4} ] ; In Edge1_1;} }
+            { Name I; // Corrente total recuperada pela fonte (I[])
+                Value{ Term{ [ I[] ] ; In Edge1_1;} }
             }
             { Name dissPowerGlobal;
                 Value{
-                    // Potência total = V * (I1 + I2 + I3 + I4 +I5 + I6 + I7 + I8)
-                    Term{ [ thickness[] * {V}*({T1} + {T2} + {T3} + {T4} ) ] ; In Edge1_1;}
+                    // Potência total = V * I[] (válido para qualquer número de fitas)
+                    Term{ [ thickness[] * {V} * I[] ] ; In Edge1_1;}
                 }
             }
 
@@ -537,10 +511,10 @@ PostOperation {
             NameOfPostProcessing MagDyn_ta ;
         Operation{
             Print[ time[OmegaC], OnRegion OmegaC, LastTimeStepOnly, Format Table, SendToServer "Output/0Time [s]"] ;
-                Print[ I1, OnRegion Edge1_1, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 1 [A]"] ;
-                Print[ I2, OnRegion Edge1_2, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 2 [A]"] ;
-                Print[ I3, OnRegion Edge1_3, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 3 [A]"] ;
-                Print[ I4, OnRegion Edge1_4, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 4 [A]"] ;
+             //   Print[ I1, OnRegion Edge1_1, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 1 [A]"] ;
+                // Print[ I2, OnRegion Edge1_2, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 2 [A]"] ;
+                // Print[ I3, OnRegion Edge1_3, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 3 [A]"] ;
+                // Print[ I4, OnRegion Edge1_4, LastTimeStepOnly, Format Table, SendToServer "Output/1Current Tape 4 [A]"] ;
 
                 Print[ V, OnRegion PositiveEdges, LastTimeStepOnly, Format Table, SendToServer "Output/2Tension [Vm^-1]"] ;
                 Print[ dissPower[OmegaC], OnGlobal, LastTimeStepOnly, Format Table, SendToServer "Output/3Joule loss [W]"] ;

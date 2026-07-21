@@ -15,7 +15,7 @@ numElementsTape = Floor[elementMult*0.1*200/meshMult];
 N_ele = 1; // Number of virtual elemnets in the h_phi_ts_formulation
 Delta = H_tape/(N_ele); // Virtual elements size
 
-// ---- Constant definition for regions ----
+// ---- Constant definition for regions (Environment & Physics) ----
 AIR = 1000;
 AIR_OUT = 2000;
 SURF_SHELL = 3000;
@@ -24,33 +24,17 @@ SHELL_DOWN = 5000;
 SHELL_UP = 6000;
 CUT = 9000;
 ARBITRARY_POINT = 11000;
-EDGE_1 = 11001;
-EDGE_2 = 11002;
 SURF_SYM = 13000;
 SURF_SYM_MAT = 13500;
 SURF_OUT = 14000000;
-MATERIAL = 23000;
 BND_MATERIAL = 25000;
 BND_MATERIAL_SIDE = 26000;
-THICK_CUT = SURF_OUT+1; // Fix me! It will be different depending on the other physical IDs
-// Novas Tags para 2 fitas independentes
-MATERIAL_1 = 3001; 
-MATERIAL_2 = 3002;
-EDGE_1_1 = 3101; 
-EDGE_1_2 = 3102;
-EDGE_2_1 = 3201; 
-EDGE_2_2 = 3202;
-// Tags para a Fita 3
-MATERIAL_3 = 3003;
-EDGE_1_3 = 3103; // Borda positiva
-EDGE_2_3 = 3203; // Borda negativa
-// Tags para a Fita 4
-MATERIAL_4 = 3004;
-EDGE_1_4 = 3104; // Borda positiva
-EDGE_2_4 = 3204; // Borda negativa
-
-
+THICK_CUT = SURF_OUT+1; 
 
 // Tags para condições de contorno (Dirichlet)
 SYMM_X = 13001;
 SYMM_Y = 13002;
+
+// Nota: As 144 fitas (Conducting domains, Left edges e Right edges) 
+// não precisam mais ser declaradas aqui. Elas são geradas dinamicamente 
+// nos arquivos .geo e .pro usando as bases 3000, 3100 e 3200 + ID.

@@ -65,22 +65,7 @@ For b In {0 : #Lista_X[]-1}
 EndFor
 
 // ====================================================================
-// ORGANIZAÇÃO DOS GRUPOS
-// ====================================================================
-Mat1[] = {}; Mat2[] = {}; Mat3[] = {}; Mat4[] = {};
-E1_1[] = {}; E1_2[] = {}; E1_3[] = {}; E1_4[] = {};
-E2_1[] = {}; E2_2[] = {}; E2_3[] = {}; E2_4[] = {};
-
-For k In {0 : #linhasTapes[]-1}
-  mod = k % 4;
-  If(mod == 0) Mat1[] += {linhasTapes[k]}; E1_1[] += {pontosEsquerda[k]}; E2_1[] += {pontosDireita[k]}; EndIf
-  If(mod == 1) Mat2[] += {linhasTapes[k]}; E1_2[] += {pontosEsquerda[k]}; E2_2[] += {pontosDireita[k]}; EndIf
-  If(mod == 2) Mat3[] += {linhasTapes[k]}; E1_3[] += {pontosEsquerda[k]}; E2_3[] += {pontosDireita[k]}; EndIf
-  If(mod == 3) Mat4[] += {linhasTapes[k]}; E1_4[] += {pontosEsquerda[k]}; E2_4[] += {pontosDireita[k]}; EndIf
-EndFor
-
-// ====================================================================
-// GEOMETRIA GLOBAL E FÍSICA
+// GEOMETRIA GLOBAL E FÍSICA AUTOMATIZADA (144 FITAS INDEPENDENTES)
 // ====================================================================
 l_sx = newl; Line(l_sx) = {100, 8};
 l_sy = newl; Line(l_sy) = {100, 6};
@@ -95,24 +80,17 @@ Curve{linhasTapes[]} In Surface{2};
 Physical Surface("Air", AIR) = {2};
 Physical Line("Exterior boundary", SURF_OUT) = {6};
 
-Physical Line("Conducting domain 1", MATERIAL_1) = {Mat1[]};
-Physical Line("Conducting domain 2", MATERIAL_2) = {Mat2[]};
-Physical Line("Conducting domain 3", MATERIAL_3) = {Mat3[]};
-Physical Line("Conducting domain 4", MATERIAL_4) = {Mat4[]};
+// Cria uma região física numerada exclusiva para cada uma das 144 linhas
+For k In {0 : #linhasTapes[]-1}
+  id = k + 1;
+  Physical Line(Sprintf("Conducting domain %g", id), 10000 + id) = {linhasTapes[k]};
+  Physical Point(Sprintf("Left edge %g", id), 20000 + id) = {pontosEsquerda[k]};
+  Physical Point(Sprintf("Right edge %g", id), 30000 + id) = {pontosDireita[k]};
+EndFor
+
 Physical Line("Conducting domain boundary", BND_MATERIAL) = {linhasTapes[]};
-
-Physical Point("Left edge 1", EDGE_1_1) = {E1_1[]};
-Physical Point("Left edge 2", EDGE_1_2) = {E1_2[]};
-Physical Point("Left edge 3", EDGE_1_3) = {E1_3[]};
-Physical Point("Left edge 4", EDGE_1_4) = {E1_4[]};
-
-Physical Point("Right edge 1", EDGE_2_1) = {E2_1[]};
-Physical Point("Right edge 2", EDGE_2_2) = {E2_2[]};
-Physical Point("Right edge 3", EDGE_2_3) = {E2_3[]};
-Physical Point("Right edge 4", EDGE_2_4) = {E2_4[]};
-
-Hide { Point{ Point '*' }; }
 Cohomology(1) {{AIR}, {}};
+
 
 // ====================================================================
 // CONTROLE DE MALHA — CRESCIMENTO PROGRESSIVO (growth rate)
