@@ -46,22 +46,23 @@ ElseIf(MaterialType == 1 || MaterialType == 2)
         Edge2 = Region[ {} ];
         PositiveEdges = Region[ {} ];
 
-        // 2. Cria as 144 fitas e bordas dinamicamente e já as acumula
+// 2. Cria as 144 fitas e bordas dinamicamente e já as acumula
         For i In {1:144}
-            Super~i  = Region[ 10000 + i ];
-            Edge1_~i = Region[ 20000 + i ];
-            Edge2_~i = Region[ 30000 + i ];
+            Super~{i}  = Region[ 10000 + i ];
+            Edge1_~{i} = Region[ 20000 + i ];
+            Edge2_~{i} = Region[ 30000 + i ];
 
             // Adiciona as fitas individuais aos grupos gerais
-            Super += Region[ Super~i ];
-            Cond  += Region[ Super~i ];
-            Edge1 += Region[ Edge1_~i ];
-            Edge2 += Region[ Edge2_~i ];
-            PositiveEdges += Region[ Edge1_~i ];
+            Super += Region[ Super~{i} ];
+            Cond  += Region[ Super~{i} ];
+            Edge1 += Region[ Edge1_~{i} ];
+            Edge2 += Region[ Edge2_~{i} ];
+            PositiveEdges += Region[ Edge1_~{i} ];
         EndFor
-        
-        // 3. Define as bordas laterais conjuntas
+
+        // 3. Define as bordas laterais conjuntas usando os grupos acumulados acima
         LateralEdges = Region[ {Edge1, Edge2} ];
+
         
         BndOmegaC += Region[ BND_MATERIAL ];
         BndOmegaC_side += Region[ BND_MATERIAL_SIDE ];
@@ -301,12 +302,12 @@ FunctionSpace {
             
             // Declaração automática das 144 funções de base modais
             For i In {1:144}
-                { Name psii~i; NameOfCoef Ti~i; Function BF_GroupOfNodes; Support Super~i; Entity GroupsOfNodesOf[Edge1_~i]; }
+                { Name psii~{i}; NameOfCoef Ti~{i}; Function BF_GroupOfNodes; Support Super~{i}; Entity GroupsOfNodesOf[Edge1_~{i}]; }
             EndFor
         }
         GlobalQuantity {
             For i In {1:144}
-                { Name T~i ; Type AliasOf ; NameOfCoef Ti~i ; }
+                { Name T~{i} ; Type AliasOf ; NameOfCoef Ti~{i} ; }
             EndFor
             { Name V  ; Type AssociatedWith ; NameOfCoef Ti1 ; }
         }
@@ -328,7 +329,7 @@ Formulation {
             
             // Mapeia os 144 potenciais globais de corrente como incógnitas
             For i In {1:144}
-                { Name T~i; Type Global; NameOfSpace t_space[T~i]; }
+                { Name T~{i}; Type Global; NameOfSpace t_space[T~{i}]; }
             EndFor
 
             { Name V; Type Global; NameOfSpace t_space[V]; }
@@ -384,12 +385,12 @@ Formulation {
             // ====================================================================
             // 1. Acoplamento de Faraday: A queda de tensão V governa o avanço temporal de cada fita
             For i In {1:144}
-                GlobalTerm { [ - $DTime * Dof{V} , {T~i} ] ; In Edge1_~i ; }
+                GlobalTerm { [ - $DTime * Dof{V} , {T~{i}} ] ; In Edge1_~i ; }
             EndFor
 
             // 2. Lei de Kirchhoff das Correntes (KCL): A soma das 144 correntes é igual à fonte transiente
             For i In {1:144}
-                GlobalTerm { [ Dof{T~i} , {V} ] ; In Edge1_~i ; }
+                GlobalTerm { [ Dof{T~{i}} , {V} ] ; In Edge1_~{i} ; }
             EndFor
 
             GlobalTerm { [ -I[] , {V} ] ; In Edge1_1 ; }    
