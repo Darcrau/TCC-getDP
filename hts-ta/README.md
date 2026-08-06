@@ -409,6 +409,24 @@ Arquivos de visualização (`.pos` do Gmsh), se `economPos = 0`:
 - `res/h.pos` — campo magnético H no domínio completo
 - `res/b.pos` — indução magnética B no ar
 
+### 5.4 GIF animado do resultado temporal
+
+Foi adicionado o script `generate_gif.py` para gerar um GIF animado com **todo o intervalo temporal salvo** em `res/b.pos`.
+
+Pré-requisitos:
+- `gmsh` no PATH
+- `Pillow` no Python (`python3 -m pip install pillow`)
+
+Uso:
+
+```bash
+cd hts-ta
+python3 generate_gif.py --pos res/b.pos --out res/b.gif --fps 20
+```
+
+Saída:
+- `res/b.gif` com todos os passos de tempo disponíveis no arquivo `.pos`.
+
 ---
 
 ## 6. Pós-processamento — `formulations.pro` e `htstape.pro`
