@@ -1,0 +1,40 @@
+// ---- Geometry parameters ----
+DefineConstant[
+R_inf = {0.08, Name "Input/1Geometry/Outer radius (m)", Closed 1}, // Outer shell radius [m]
+R_air = {0.04, Max R_inf, Name "Input/1Geometry/Inner radius (m)"}, // Inner shell radius [m]
+W_tape = {4e-3, Max R_air/2, Name "Input/1Geometry/Cylinder diameter (m)"}, // Width of the tape [m]
+H_tape = {1e-6, Max R_air/2, Name "Input/1Geometry/Bottom cylinder height (m)"}, // Height of the tape [m]
+meshLayerWidthTape = {0.001} // Width of the control mesh layer around the cylinder
+];
+
+// ---- Mesh parameters ----
+DefineConstant [meshMult = {4, Name "Input/2Mesh/1Mesh size multiplier (-)"}]; // Multiplier [-] of a default mesh size distribution
+DefineConstant [elementMult = 10];
+
+numElementsTape = Floor[elementMult*0.1*200/meshMult];
+N_ele = 1; // Number of virtual elemnets in the h_phi_ts_formulation
+Delta = H_tape/(N_ele); // Virtual elements size
+
+// ---- Constant definition for regions (Environment & Physics) ----
+AIR = 1000;
+AIR_OUT = 2000;
+SURF_SHELL = 3000;
+SHELL = 4000;
+SHELL_DOWN = 5000;
+SHELL_UP = 6000;
+CUT = 9000;
+ARBITRARY_POINT = 11000;
+SURF_SYM = 13000;
+SURF_SYM_MAT = 13500;
+SURF_OUT = 14000000;
+BND_MATERIAL = 25000;
+BND_MATERIAL_SIDE = 26000;
+THICK_CUT = SURF_OUT+1; 
+
+// Tags para condições de contorno (Dirichlet)
+SYMM_X = 13001;
+SYMM_Y = 13002;
+
+// Nota: As 144 fitas (Conducting domains, Left edges e Right edges) 
+// não precisam mais ser declaradas aqui. Elas são geradas dinamicamente 
+// nos arquivos .geo e .pro usando as bases 3000, 3100 e 3200 + ID.
